@@ -2,6 +2,7 @@ package org.launchcode.theBridge2.controllers;
 
 import org.launchcode.theBridge2.data.UserRepository;
 import org.launchcode.theBridge2.models.User;
+import org.launchcode.theBridge2.models.dto.LoginFormDTO;
 import org.launchcode.theBridge2.models.dto.RegisterFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -94,5 +95,66 @@ public class AuthenticationController {
 
         return "redirect:/theBridge/messenger/relationshipRequest?senderId="+newUserId;
     }
+
+
+
+    @GetMapping("/login")
+    public String displayLoginForm(Model model){
+        model.addAttribute(new LoginFormDTO());
+        model.addAttribute("title", "Log in");
+        return "login";
+    }
+
+
+    @PostMapping("/login")
+    public String processLoginForm(@ModelAttribute @Valid LoginFormDTO ldto,
+                                   Errors errors, HttpServletRequest request,
+                                   Model model) {
+
+        if (errors.hasErrors()){
+            model.addAttribute("title", "Log In");
+            return "login";
+        }
+
+        User theUser = userRepository.findByUsername(ldto.getUsername());
+
+        if(theUser == null){
+            errors.rejectValue("username", "user.invalid", "The given username" +
+                    " does not exist");
+            model.addAttribute("title", "Log In");
+            return "login";
+        }
+
+        setUserInSession(request.getSession(), theUser);
+
+        //TODO eventually instead of being sent to theBridgeDU or AU, after
+        // registration a defult user will be routed to the relationships page
+        // where they will be able to add a student to their account. Also while
+        // at the moment the account type is being checked against a hard
+        // value '1' this will change once the relationship to a table is
+        // established. Then the account type will be checked with the pk
+        // value of the account type
+
+        if(theUser.getAccountType() == 1){
+            return "redirect:/theBridge/nav2/";
+        }
+        return "redirect:/theBridge/";
+
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request){
+        request.getSession().invalidate();
+        return "redirect:/login";
+    }
+
+    @GetMapping("/denied")
+    public String displayDeniedAccess(Model model){
+
+
+        return "denied";
+    }
+
+
 
 }
