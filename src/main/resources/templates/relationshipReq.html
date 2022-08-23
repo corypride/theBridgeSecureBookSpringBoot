@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8"/>
+        <title th:text="${title}"></title>
+
+        <th:block th:replace ="fragments::pg-links"></th:block>
+        <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}">
+        <script th:href="@{/js/relReq.js}"></script>
+
+    </head>
+    <body class="container-fluid">
+        <nav th:replace="fragments::reg_loginNav"></nav>
+        <div class ="container-fluid m-auto">
+        <div id="main-content"
+             class="jumbotron jumbotron-fluid bg-white row">
+
+            <div th:replace="fragments::relationshipRequest"></div>
+
+        </div>
+    </div>
+    </body>
+</html>

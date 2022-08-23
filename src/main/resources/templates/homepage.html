@@ -1,0 +1,93 @@
+<!DOCTYPE>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+	
+	<head>
+		<meta charset="utf-8" />
+    	<meta name="viewport" content="width=device-width" />
+		<title> The Bridge Homepage </title>
+		<div>
+			<th:block th:replace ="fragments::pg-links"></th:block>
+			<link type="text/css" rel="stylesheet"
+				  th:href="@{/css/homepage.css}" />
+		</div>
+	</head>
+	<body >
+		<div class="container-fluid">
+			<div id="banner" class="row text-info bg-black">
+				<h1><marquee>It's The Bridge Homepage!</marquee></h1>
+			</div>
+			<div class="row">
+				<div id="middle-left" class ="col-md-6">
+					<img th:src ='@{/images/TheBridgeLogo2.jpg}' width =
+							"660px" height="435px"/>
+				</div>
+				<div id="middle-right" class
+						="col-md-6 bg-info">
+					<p> This site is an interactive tool designed to <em>
+						BRIDGE</em> the gap between our precious children and
+						their incarcerated parents, guardians, or loved ones by giving 
+						them better access to what, when and how their children are learning.
+					</p>
+					<p>
+
+						Tools included on this site provide the parent on the
+						other end of the bridge with real-time access to:
+						<ol>
+						
+							<li> Assignments scores and due dates.</li>
+							<!--todo later add optional notifications(W/
+							optional notifications)--->
+
+							<li> Access to information about
+								missing/incomplete/failed/assignments, as well notification of 
+								extra credit opportunities.
+							</li>
+							
+							<li> Accumulative grades.</li>
+							<!--todo later add notifications (W/ optional
+							daily, quarterly and semester notifications)-->
+
+						</ol>
+					</p>
+					<p> Site users will also be provided with:
+						<ol>
+							<li> The ability communicate with administrators
+								from your student's school by messaging via our messenger feature.
+							</li>
+
+<!--							<li> The functionality that allows cooperative-->
+<!--								tasks such as assignment and test prep.-->
+<!--							</li>-->
+							<li> Access to our library of educational, reading 
+								and videos meant to be used as talk points for
+								you and
+								your child.
+							</li>
+						</ol>
+					</p>
+					<div class="text-center bg-info">
+						Bridging the gap starts with ParentView
+						<a class="text-danger" th:href="@{/theBridge/nav/}">
+							here</a>
+						!
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div id="bottom-right" class="col-md-6">
+					<marquee class="text-info" id = "bottom-text">
+						<div th:replace ="fragments::dateTime"></div>
+					</marquee>
+				</div>
+				<div id="bottom-left" class="col-md-6">
+					<a class="float-right btn btn-sm active" th:href =
+							"@{/theBridge/nav/}">
+						<img th:src ='@{/images/rightArrow.png}' width = "125px"
+							 height = "43px" />
+					</a>
+				</div>
+			</div>
+		</div>
+</body>
+
+</html>

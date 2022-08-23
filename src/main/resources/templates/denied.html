@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Access Denied</title>
+    <th:block th:replace ="fragments::pg-links"></th:block>
+</head>
+<body class="container-fluid bg-dark">
+    <div class="row">
+        <img class="col-7" th:src="@{/images/stop.png}"/>
+        <div class="col-4 p-4">
+            <h2 class="text-danger">
+                Page Access is restricted.
+            </h2>
+            <h3 class="text-danger text-wrap">If you feel that you have reached
+                this
+                page by
+                mistake, please contact the site manager
+                <a href="">cory.pride83@gmail.com</a></h3>
+        </div>
+    </div>
+</body>
+</html>

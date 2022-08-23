@@ -1,0 +1,49 @@
+<!DOCTYPE>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+	
+	<head>
+		<meta charset="utf-8" />
+    	<meta name="viewport" content="width=device-width" />
+		<title>Report Navigation Page</title>
+		<div>
+			<th:block th:replace ="fragments::pg-links"></th:block>
+			<link type="text/css" rel="stylesheet"
+				  th:href="@{/css/homepage.css}" />
+		</div>
+	</head>
+	<body >
+		<div class="container-fluid">
+			<div id="banner" class="row text-info">
+				<h1><marquee>Check out the Reports</marquee></h1>
+			</div>
+			<div class="row">
+				<div id="middle-left" class ="col-md-6">
+					<img src ='/images/TheBridgeLogo.png' width = "560px">
+				</div>
+				<div id="middle-right" class
+						="col-md-6 bg-info">
+					<h1>Reports</h1>
+					<ul th:each="report:${reports}">
+						<li><a class="text-danger"
+							   th:text="${report.displayName}"
+							   th:href="@{'/theBridge/reports/'}+${report.rptName}"></a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="row">
+				<div id="bottom-right" class="col-md-6">
+					<marquee class="text-info" id = "bottom-text">
+						<div th:replace ="fragments::dateTime"></div>
+					</marquee>
+				</div>
+				<div id="bottom-left" class="col-md-6">
+					<a class="float-right btn btn-sm active">
+						<img src ='/images/rightArrow.png' width = "125px"
+							 height = "43px" ></img>
+					</a>
+				</div>
+			</div>
+		</div>
+</body>
+
+</html>

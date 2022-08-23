@@ -1,0 +1,3562 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8"/>
+        <title></title>
+    </head>
+    <body>
+
+        <!--- register, and login navbar-->
+        <nav th:fragment ="reg_loginNav"
+             class="navbar fixed-top navbar-dark bg-dark">
+            <a th:href="@{/theBridge/}" th:text="Home"></a>
+            <a th:href="@{/register/}" th:text="Register"></a>
+            <a th:href="@{/login/}" th:text="Login"></a>
+        </nav>
+
+        <!-- Admin nav bar -->
+        <nav th:fragment ="admin_loginNav"
+             class="navbar fixed-top navbar-dark bg-dark">
+            <a th:href="@{/theBridge}" ><img th:src="@{/images/home.png}"></a>
+            <a
+                    th:href="@{/theBridge/messenger/}"
+            ><img th:src="@{/images/messenger.png}"></a>
+            <a th:href="@{/theBridge/nav/}"
+            >ParentView</a>
+            <a th:href="@{/theBridge/nav2/}"
+               >The Gradebook</a>
+            <a th:href="@{/myInterface/}"
+            >Site Management</a>
+            <a th:href="@{/logout/}" th:text="Logout"></a>
+        </nav>
+
+
+        <!--css and js links--->
+        <th:block th:fragment ="pg-links" >
+            <script th:src="@{/bootstrap-4.3.1/jquery-slim.min.js}" ></script>
+            <link type="text/css" rel="stylesheet"
+                  th:href="@{/bootstrap-4.3.1/dist/css/bootstrap.min.css}">
+            <script th:src="@{/bootstrap-4.3.1/dist/js/bootstrap.bundle.min.js}" ></script>
+            <script th:src="@{/bootstrap-4.3.1/popper.min.js}" ></script>
+
+        </th:block>
+
+
+        <!--javascript time calculation--->
+        <div th:fragment ="dateTime">
+            <script>
+                            //system time is 6hrs ahead of the actual time. 3,600,000 ms = 1 hour
+                            //I deduct the 6 hours from the current system time to get the correct time
+                            let t = new Date(); 
+                            t.setTime(t.getTime() - 21600000);   
+                            let y = t.getFullYear();
+                            let m = t.getUTCMonth()+1;
+                            let d = t.getUTCDate();
+							let dateStr = `Today is ${m}/${d}/${y}`;
+
+							let p = document.getElementById("bottom-text");
+							p.append(`\n ${dateStr}`);
+						</script>
+        </div>
+
+        <!--all users report-->
+        <div th:fragment="allUsersRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">All Site
+                Users</h1>
+            <table class = "table table-bordered">
+                <h4 class="text-light formHeaders">Admin Users</h4>
+                <thead class="thead-dark text-center">
+                <th>Name</th>
+                <th>UserName</th>
+            <!-- <th>Inmate Number</th>-->
+                <th>Email</th>
+                <th>UserType</th>
+                </thead>
+
+                <tr class="text-center bg-light" th:each="user:${adminUsers}">
+                    <td th:text="${user.getDisplayName()}"></td>
+                    <td
+                            th:text="${user.username}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:if="${user.accountType == 1}"
+                        th:text="'Admin User'"></td>
+                </tr>
+            </table>
+            <table class = "table table-bordered">
+                <h4 class="text-light formHeaders">Default Users</h4>
+                <thead class="thead-dark text-center">
+                <th>Name</th>
+                <th>UserName</th>
+                <th>Inmate Number</th>
+                <th>Email</th>
+                <th>UserType</th>
+                </thead>
+
+                <tr class="text-center bg-light" th:each="user:${defaultUsers}">
+                    <td th:text="${user.getDisplayName()}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td th:unless="${user.inmateNumber <1}"
+                        th:text="${user.inmateNumber}"></td>
+                    <td th:if="${user.inmateNumber <1}">N/A</td>
+                    <td th:text="${user.email}"></td>
+                    <td th:if="${user.accountType == 0}"
+                        th:text="'Default User'"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!--- All courses report---->
+        <div th:fragment="allCoursesRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">Courses offered by
+                School</h1>
+
+                <th:block th:each="school: ${schools}" >
+                    <table class = "table table-bordered">
+                        <div class="font-weight-bolder formHeaders"
+                             style="font-size:25px">
+                            <a th:if="${isMIReq.equals(true)}"
+                               class="text-danger "
+                               th:text="'School: '+${school.schoolName}"
+                               th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=true'"></a>
+
+                            <a th:unless="${isMIReq.equals(true)}"
+                               class="text-danger "
+                               th:text="'School: '+${school.schoolName}"
+                               th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=false'"></a>
+                        </div>
+                    <thead class="thead-dark text-center">
+                        <th >Course Id</th>
+                        <th >Course Name</th>
+                        <th >Course Genre</th>
+                        <th >Course Level</th>
+                        </thead>
+
+                        <tr class="text-center bg-light"
+                            th:each="course:${school.courses}">
+                            <td th:text="${course.id}"></td>
+                            <td th:text="${course.courseName}"></td>
+                            <td th:text="${course.courseGenre.genre}"></td>
+                            <td th:text="${course.courseLevel.level}"></td>
+                        </tr>
+                    </table>
+                </th:block>
+
+        </div>
+        <!--all administrators report (BY school)--->
+        <div th:fragment="allAdminsRpt" class = "container-fluid">
+            <div class="navbar navbar-dark bg-dark">
+                <a th:href="@{/myInterface/createAdmin}">Create Admin</a>
+                <a th:href="@{/myInterface/getAdmin}">Edit Admin</a>
+            </div>
+            <h1 class="text-center formHeaders text-light">Administrators at
+                each school</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div th:if="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder text-light formHeaders"
+                         th:text="'Unemployed Admins'"
+                         style="font-size:20px"></div>
+
+                    <div th:unless="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder formHeaders"
+
+                         style="font-size:20px">
+                        <a class="text-danger"
+                           th:text="'School: '+${school.schoolName}"
+                                th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=true'"></a>
+                    </div>
+                    <thead class="thead-dark text-center">
+
+                    <th>Administrator's Name</th>
+                    <th>Position</th>
+                    <th>UserName</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="admins :${school.administrators}">
+                        <td>
+                            <a th:href="@{'/theBridge/reports/admin/'}+${admins.id}+'?isMIReq=true'"
+                                    th:text="${admins.getDisplayName()}"></a>
+                        </td>
+                        <td th:text="${admins.adminPosition.position}"></td>
+                        <td th:text="${admins.User.username}"></td>
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+        <!--all administrators report (for teachers)--->
+        <div th:fragment="allAdminsRpt2" class = "container-fluid">
+
+            <h1 class="text-center formHeaders text-light">Administrators at
+                each school</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div th:if="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder text-light formHeaders"
+                         th:text="'Unemployed Admins'"
+                         style="font-size:20px"></div>
+
+                    <div th:unless="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder formHeaders"
+
+                         style="font-size:20px">
+                        <a class="text-danger"
+                           th:text="'School: '+${school.schoolName}"
+                           th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=false'"></a>
+                    </div>
+                    <thead class="thead-dark text-center">
+
+                    <th>Administrator's Name</th>
+                    <th>Position</th>
+                    <th>UserName</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="admins:${school.administrators}">
+                        <td>
+                            <a
+                                    th:href="@{'/theBridge/reports/admin/'}+${admins.id}+'?isMIReq=false'"
+                               th:text="${admins.getDisplayName()}"></a>
+                        </td>
+                        <td th:text="${admins.adminPosition.position}"></td>
+                        <td th:text="${admins.User.username}"></td>
+                    </tr>
+                </table>
+            </th:block>
+
+        </div>
+
+        <!--all administrators report (unemployed) --->
+        <div th:fragment="adminsUnemployed" class = "container-fluid">
+            <div class="navbar navbar-dark bg-dark">
+                <a th:href="@{/theBridge/nav2/createAdmin}">Create Admin</a>
+                <a th:href="@{/theBridge/nav2/getAdmin}">Edit Admin</a>
+            </div>
+            <h1 class="text-center text-light formHeaders">Available
+                Administrators</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div th:if="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder text-light formHeaders"
+                         th:text="'Unemployed Admins'"
+                         style="font-size:20px"></div>
+
+                    <div th:unless="${school.schoolName.equals('N/A')}"
+                         class="font-weight-bolder"
+                         th:text="'School: '+${school.schoolName}"
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Admin Id</th>
+                    <th>Administrator's Name</th>
+                    <th>D.O.B.</th>
+                    <th>Date Hired</th>
+                    <th>Expertise</th>
+                    <th>Position</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="admins:${school.administrators}">
+                        <td th:text="${admins.id}"></td>
+                        <td
+                                th:text="${admins.getDisplayName()}"></td>
+                        <td th:text="${admins.dateOfBirth}"></td>
+                        <td th:text="${admins.dateHired}"></td>
+                        <td th:text="${admins.expertise}"></td>
+                        <td th:text="${admins.adminPosition.position}"></td>
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+        <!--an administrator report-->
+        <div th:fragment="anAdminRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">Administrator
+                Info</h1>
+            <table class = "table table-bordered">
+
+                <div class="font-weight-bolder formHeaders text-light"
+                     th:text="'School: '+${admins.school.schoolName}"
+                     style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Admin Id</th>
+                <th>Administrator's Name</th>
+                <th>D.O.B.</th>
+                <th>Date Hired</th>
+                <th>Expertise</th>
+                <th>Position</th>
+                </thead>
+
+                <tr class="text-center bg-light">
+                    <td th:text="${admins.id}"></td>
+                    <td
+                            th:text="${admins.getDisplayName()}"></td>
+                    <td th:text="${admins.dateOfBirth}"></td>
+                    <td th:text="${admins.dateHired}"></td>
+                    <td th:text="${admins.expertise}"></td>
+                    <td th:text="${admins.adminPosition.position}"></td>
+                </tr>
+            </table>
+<!--            <h2 class="bg-dark">-->
+<!--                <a th:href="@{'/theBridge/reports/assignments?isMIReq='}"-->
+<!--                   th:text="'<&#45;&#45; Go to All Assignments'"></a>-->
+<!--            </h2>-->
+        </div>
+        <!--all students report--->
+        <div th:fragment="allStudentsRpt" class = "container-fluid">
+            <div th:if="${isMIReq.equals(true)}"
+                 class="navbar navbar-dark bg-dark">
+                <a th:href="@{/myInterface/createStudent}">Create Student</a>
+            </div>
+            <h1 class="text-center text-light formHeaders">All Bridge
+                Students</h1>
+            <table class = "table table-bordered">
+                <thead class="thead-dark text-center">
+                <th>Student Id</th>
+                <th>Student's Name</th>
+                <th>D.O.B.</th>
+                <th>School</th>
+                <th>Grade Level</th>
+                <th>Profile Pic</th>
+
+                </thead>
+                <th:block  th:each="student: ${students}">
+                    <tr class="text-center bg-light">
+                        <td th:text="${student.id}"></td>
+                        <th:block th:unless="${isMIReq.equals(true)}">
+                            <td>
+                                <a th:text="${student.getFullName()}"
+                                   th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=false'"></a>
+                            </td>
+                        </th:block>
+
+                        <th:block th:if="${isMIReq.equals(true)}">
+                            <td>
+                                <a th:text="${student.getFullName()}"
+                                   th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=true'"></a>
+                            </td>
+                        </th:block>
+                        <td th:text="${student.dateOfBirth}"></td>
+                        <td th:text="${student.school.schoolName}"></td>
+                        <td th:text="${student.gradeLevel.level}"></td>
+                        <td>
+                            <a th:href="${student.profilePic}">
+                                <img class="rounded-circle"
+                                     th:src="${student.profilePic}"
+                                 style="width:75px;"/>
+                            </a>
+                        </td>
+
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+
+        <!--a student report--->
+        <div th:fragment="aStudentRpt" class = "container-fluid formHeaders"
+             id="aStudentRpt">
+            <div class="bg-dark text-light ">
+                <h1 class="text-center">Student Summary</h1>
+            </div>
+            <div class="row">
+                <div class="col-8 text-light">
+                    <h3 class=""
+                        th:text="${student.getFullName()}"></h3>
+                    <h3 th:text="${student.school.schoolName}"></h3>
+                    <h3 th:text="${student.gradeLevel.level}"></h3>
+                </div>
+                <div class="col-4">
+                    <a th:href="${student.profilePic}">
+                        <img class="float-right rounded-circle" th:src="${student.profilePic}"
+                         style="width:95px;"/>
+                    </a>
+                </div>
+            </div>
+            <div class="row text-light">
+                <h4  class="m-auto" th:text="${announcements}"></h4>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <img class="" th:src="@{/images/Clipboard.svg}"
+                         style="width:200px;"/>
+                </div>
+                <div class="col-8 ">
+                    <table class="col-12 text-light"
+                           style="font-size:30px">
+                        <h4 class="text-light text-center">Today's
+                            Attendance</h4>
+                        <thead class="text-center">
+                            <th >Absent</th>
+                            <th >Tardy</th>
+                        </thead>
+                        <tr class="text-center">
+                            <td>
+                                0
+                            </td>
+                            <td >
+                                0
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-dark text-light p-2">
+                <div class="row">
+                    <h3 class="col-md-4 m-auto">Grades</h3>
+                    <h4 class="col-md-4 m-auto">Term - 3</h4>
+                    <div class="col-3">
+                        <button id="viewGradesBar" type="button" onclick="collapseGradesBar()"
+                                class="float-right btn btn-lg btn-secondary m-2">
+                            View
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="gradesBar" style="visibility:hidden;">
+                <div
+                    class="row m-auto bg-white text-secondary border-bottom border-dark text-center">
+                <h4 class="col-md-3">Grade</h4>
+                <h4 class="col-md-3">Course Name</h4>
+                <h4 class="col-md-3">YTD<br>Tardy</h4>
+                <h4 class="col-md-3">YTD<br>Absent </h4>
+            </div>
+                <div
+                    class="row m-auto bg-white border-bottom border-dark text-center"
+                    th:each="class:${student.classes}">
+                    <h4 class="col-md-3"
+                        th:text="${class.getAStudentsClassAverage(student.getFullName())}"></h4>
+
+                    <h4 class="col-md-3">
+
+                        <div
+                            th:text="${class.course.getDisplayName()}"></div>
+                        <th:block
+                                th:if="${isGradesButtonReq==true}">
+                            <a
+                            th:href="@{'/theBridge/reports/studentAssignments?classId='} + ${class.id}+'&studentId='+${student.id}+'&isGradesButtonReq=true&isMIReq=false'">
+                        <u>Assignments</u>
+                       </a>
+                        </th:block>
+
+                        <th:block th:unless="${isGradesButtonReq==true}">
+                            <a th:if="${isMIReq.equals(true)}"
+                                    th:href="@{'/theBridge/reports/studentAssignments?classId='} + ${class.id}+'&studentId='+${student.id}+'&isGradesButtonReq=false&isMIReq=true'">
+                                <u>Assignments</u>
+                            </a>
+                            <a th:unless="${isMIReq.equals(true)}"
+                                    th:href="@{'/theBridge/reports/studentAssignments?classId='} + ${class.id}+'&studentId='+${student.id}+'&isGradesButtonReq=false&isMIReq=false'">
+                                <u>Assignments</u>
+                            </a>
+                        </th:block>
+                    </h4>
+                    <h3 class="col-md-3">0</h3>
+                    <h3 class="col-md-3">2</h3>
+               </div>
+            </div>
+            <br>
+        </div>
+
+        <!--all students by school report--->
+        <div th:fragment="allStudentsBySchoolRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">All Bridge Students
+                (By School)</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder" style="font-size:20px">
+                        <a th:if="${isMIReq.equals(true)}"
+                           class="text-light formHeaders"
+                           th:text="'School: '+${school.schoolName}"
+                           th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=true'"></a>
+
+                        <a th:unless="${isMIReq.equals(true)}"
+                           class="text-light formHeaders"
+                           th:text="'School: '+${school.schoolName}"
+                           th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=false'"></a>
+                    </div>
+                    <thead class="thead-dark text-center">
+                    <th>Student Id</th>
+                    <th>Student's Name</th>
+                    <th>D.O.B.</th>
+                    <th>Grade Level</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="student:${school.students}">
+                        <td th:text="${student.id}"></td>
+                        <td>
+                            <a th:text="${student.getFullName()}"
+                                    th:href="@{/theBridge/reports/students/} + ${student.id}">
+                            </a>
+                        </td>
+                        <td th:text="${student.dateOfBirth}"></td>
+                        <td th:text="${student.gradeLevel.level}"></td>
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+
+        <!--a school rpt-->
+        <div th:fragment="aSchoolRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders"
+                th:text="${school.getSchoolName()}"></h1>
+            <div class="formHeaders p-2 mb-2">
+                <h4
+                        class="text-light"
+                        th:text="'Address: '+${school.schoolDetails.address}"></h4>
+                <h4
+                        class="text-light"
+                        th:text="'Phone Number: '+${school.schoolDetails.phoneNumber}"></h4>
+                <h4
+                        class="text-light"
+                        th:text="'City, State, Zip: '+${school.schoolDetails.city} + ', ' + ${school.schoolDetails.aState} + ' ' +${school.schoolDetails.zipCode}"></h4>
+            </div>
+
+                <!--Admins table-->
+                <table class = "table table-bordered">
+
+                <div class="font-weight-bolder text-light formHeaders"
+                     th:text="'Administrators:'"
+                     style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Admin Id</th>
+                <th>Administrator's Name</th>
+                <th>D.O.B.</th>
+                <th>Date Hired</th>
+                <th>Expertise</th>
+                <th>Position</th>
+                </thead>
+
+                <tr class="text-center bg-light"
+                    th:each="admins:${administrators}">
+                    <td th:text="${admins.id}"></td>
+                    <td
+                            th:text="${admins.getDisplayName()}"></td>
+                    <td th:text="${admins.dateOfBirth}"></td>
+                    <td th:text="${admins.dateHired}"></td>
+                    <td th:text="${admins.expertise}"></td>
+                    <td th:text="${admins.adminPosition.position}"></td>
+                </tr>
+            </table>
+                <!--students Table-->
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder text-light formHeaders"
+                         th:text="'Students:'"
+                         style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Student Id</th>
+                <th>Student's Name</th>
+                <th>D.O.B.</th>
+                <th>School</th>
+                <th>Grade Level</th>
+                <th>Profile Pic</th>
+
+                </thead>
+                <th:block  th:each="student: ${students}">
+                    <tr class="text-center bg-light">
+                        <td th:text="${student.id}"></td>
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a th:text="${student.getFullName()}"
+                               th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=true'"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a th:text="${student.getFullName()}"
+                               th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=false'"></a>
+                        </td>
+                        <td th:text="${student.dateOfBirth}"></td>
+                        <td th:text="${student.school.schoolName}"></td>
+                        <td th:text="${student.gradeLevel.level}"></td>
+                        <td>
+                            <a th:href="${student.profilePic}">
+                                <img class="rounded-circle"
+                                 th:src="${student.profilePic}"
+                                 style="width:75px;"/>
+                            </a>
+                        </td>
+
+                    </tr>
+                </th:block>
+            </table>
+                <!--Classes-->
+                <table class = "table table-bordered">
+                <div class="font-weight-bolder text-light formHeaders"
+                     th:text="'Classes: '"
+                     style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Class Id</th>
+                <th>Course</th>
+                <th>Instructor</th>
+                <th>Semester</th>
+                <th>Max Size</th>
+                </thead>
+
+                <tr class="text-center bg-light"
+                    th:each="c:${classes}">
+                    <td th:text="${c.id}"></td>
+                    <td th:if="${isMIReq.equals(true)}">
+                        <a th:text="${c.course.getDisplayName()}"
+                           th:href="@{'/theBridge/reports/aClass?classId='} + ${c.id}+'&isMIReq=true'"></a>
+                    </td>
+                    <td th:unless="${isMIReq.equals(true)}">
+                        <a th:text="${c.course.getDisplayName()}"
+                           th:href="@{'/theBridge/reports/aClass?classId='} + ${c.id}+'&isMIReq=false'"></a>
+                    </td>
+                    <td th:text="${c.instructor.getDisplayName()}"></td>
+                    <td th:text="${c.getSemesterStr()}"></td>
+                    <td th:text="${c.maxStudents}"></td>
+
+                </tr>
+            </table>
+
+            <div class="navbar formHeaders p-2">
+                <h3>
+                    <a th:text="'Go to Course List'"
+                   th:href="@{/theBridge/reports/courseList}+'?isMIReq='+${isMIReq}"></a>
+                </h3>
+                <h3>
+                    <a th:text="'Go to School Links'"
+                   th:href="@{/theBridge/reports/schoolLinks}+'?isMIReq='+${isMIReq}"></a>
+                </h3>
+            </div>
+
+        </div>
+
+        <!-------- SchoolLinks report ----->
+        <div th:fragment="allSchoolLinksRpt" class ="container-fluid">
+            <h1 class="text-center text-light formHeaders">All Bridge
+                Schools</h1>
+            <h2 class="text-center text-light formHeaders">Click the school that you wish to add
+                course/s to</h2>
+            <table class = "table table-bordered text-center">
+                <thead class="thead-light">
+                <th>School Name</th>
+
+                </thead>
+                <th:block  th:each="school: ${schools}"  >
+                    <tr class="text-center bg-dark" style="font-size:25px;">
+                        <td th:if="${isMIReq.equals(true)}">
+                        <a class=""
+                                th:href="@{'/theBridge/reports/school?schoolId='} + ${school.id}+'&isMIReq=true'"
+                                th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a class=""
+                               th:href="@{'/theBridge/reports/school?schoolId='} + ${school.id}+'&isMIReq=false'"
+                               th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+
+
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+
+        <!-------- All Classes report ----->
+        <div th:fragment="allClassesRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">All Classes (By
+                School)</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder formHeaders pl-1"
+                         style="font-size:25px">
+                        <a th:if="${isMIReq.equals(true)}" class="text-danger"
+                           th:text="'School: '+${school.schoolName}"
+                                th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=true'"></a>
+
+                            <a th:unless="${isMIReq.equals(true)}"
+                               class="text-danger"
+                               th:text="'School: '+${school.schoolName}"
+                               th:href="@{/theBridge/reports/school?schoolId=}+${school.id}+'&isMIReq=false'"></a>
+                    </div>
+                    <thead class="thead-dark text-center">
+                    <th>Class Id</th>
+                    <th>Course</th>
+                    <th>Instructor</th>
+                    <th>Semester</th>
+                    <th>Max Size</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="c:${school.classes}">
+                        <td th:text="${c.id}"></td>
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/theBridge/reports/aClass?classId='} + ${c.id}+'&isMIReq=true'"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/theBridge/reports/aClass?classId='} + ${c.id}+'&isMIReq=false'"></a>
+                        </td>
+                        <td th:text="${c.instructor.getDisplayName()}"></td>
+                        <td th:text="${c.getSemesterStr()}"></td>
+                        <td th:text="${c.maxStudents}"></td>
+
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+        <!-------- A Class report ----->
+        <div th:fragment="aClassRpt" class = "container-fluid">
+            <div class="text-light formHeaders"><h1 th:text="${class.school.schoolName}"></h1>
+                <h2 class=""
+                    th:text=" ${class.getSemesterInfo()}"></h2>
+                <h2
+                        th:text="${class.getInstructorInfo()}"></h2>
+            </div>
+            <h3 class="text-light formHeaders">Other Class Staff:</h3>
+
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder"
+
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Position</th>
+                    <th>Administrator's Name</th>
+                    <th>D.O.B.</th>
+                    <th>Date Hired</th>
+                    <th>Expertise</th>
+
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="staff: ${class.otherStaff}">
+                        <td th:text="${staff.adminPosition.position}"></td>
+                        <td
+                                th:text="${staff.getDisplayName()}"></td>
+                        <td th:text="${staff.dateOfBirth}"></td>
+                        <td th:text="${staff.dateHired}"></td>
+                        <td th:text="${staff.expertise}"></td>
+
+                    </tr>
+                </table>
+            <h3 class="text-light formHeaders">Students: </h3>
+                <table class = "table table-bordered table">
+                <thead class="thead-light text-center">
+                <th>Student's Name</th>
+                <th>Grade Level</th>
+                <th>Profile Pic</th>
+
+                </thead>
+                <th:block  th:each="student: ${class.students}">
+                    <tr class="text-center bg-dark text-light">
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a
+                                th:text="${student.getFullName()}"
+                               th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=true'">
+                        </a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a
+                                    th:text="${student.getFullName()}"
+                                    th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=false'">
+                            </a>
+                        </td>
+                        <td th:text="${student.gradeLevel.level}"></td>
+                        <td><img th:src="${student.profilePic}"
+                                 style="width:75px;"/></td>
+                    </tr>
+                </th:block>
+            </table>
+            <h3 class="text-light formHeaders">Assignments: </h3>
+                <table class = "table table-bordered">
+
+                    <thead class="thead-dark text-center">
+                    <th>Assignment Name</th>
+                    <th>Date Due</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="assignment:${class.assignments}">
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a
+                                th:href="@{'/theBridge/reports/assignment?assignmentId='}+${assignment.id}+'&isMIReq=true'"
+                            th:text="${assignment.assignmentName}"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a
+                                    th:href="@{'/theBridge/reports/assignment?assignmentId='}+${assignment.id}+'&isMIReq=false'"
+                                    th:text="${assignment.assignmentName}"></a>
+                        </td>
+                        <td th:text="${assignment.dueDate}"></td>
+                    </tr>
+            </table>
+        </div>
+        <!----An assignment report----->
+        <div th:fragment="assignmentRpt" class = "container-fluid">
+            <h1 class="text-light formHeaders text-center"
+                th:text=" ${assignment.getInfo()}"> </h1>
+            <h2 class="text-light formHeaders pl-1"
+                    th:text="'Instructor: ' + ${assignment.aClass.instructor.getDisplayName()}"></h2>
+            <h3 class="text-light formHeaders pl-1"
+                th:text="'Assignment: '+${assignment.assignmentName}"></h3>
+            <h4 class="text-light formHeaders pl-1"
+                th:text="'Description: '+${assignment.description}"></h4>
+            <table class = "table table-bordered" >
+                <div class="font-weight-bolder" style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Due Date</th>
+                <th>Max Points</th>
+                <th>Extra Credit</th>
+                </thead>
+
+                <tr class="text-center bg-light">
+                    <td th:text="${assignment.dueDate}"></td>
+                    <td th:text="${assignment.MaxPoints}"></td>
+                    <td th:text="${assignment.getIsExtraCredit()}"></td>
+                </tr>
+            </table>
+        </div>
+        <!--all assignments report (BY School and By Class)--->
+        <div th:fragment="allAssignmentsRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">All assignments for
+                each class at each
+                school</h1>
+            <th:block th:each="school: ${schools}" >
+                <div class="font-weight-bolder text-center bg-dark mb-3"
+                     style="font-size:20px">
+                    <a th:if="${isMIReq.equals(true)}"
+                       th:text="'School: '+${school.schoolName}"
+                        th:href="@{'/theBridge/reports/school?schoolId='}+${school.id}+'&isMIReq=true'"></a>
+                    <a th:unless="${isMIReq.equals(true)}"
+                       th:text="'School: '+${school.schoolName}"
+                       th:href="@{'/theBridge/reports/school?schoolId='}+${school.id}+'&isMIReq=false'"></a>
+                </div>
+                    <div th:each="class:${school.classes}">
+                        <table class = "table table-bordered">
+                            <div class="font-weight-bolder formHeaders pl-1"
+                                 style="font-size:20px">
+                                <a th:if="${isMIReq.equals(true)}" class=""
+                                    th:text="'Class: '+${class.getSemesterInfo()}"
+                                    th:href="@{'/theBridge/reports/aClass?classId='}+${class.id}+'&isMIReq=true'"></a>
+                                <a th:unless="${isMIReq.equals(true)}" class=""
+                                   th:text="'Class: '+${class.getSemesterInfo()}"
+                                   th:href="@{'/theBridge/reports/aClass?classId='}+${class.id}+'&isMIReq=false'"></a>
+                            </div>
+                            <div class="font-weight-bolder formHeaders pl-1"
+                                 style="font-size:20px">
+                                <a th:if="${isMIReq.equals(true)}" class=""
+                                   th:text="${class.getInstructorInfo()}"
+                                   th:href="@{'/theBridge/reports/admin/'}+${class.getInstructor().getId()}+'?isMIReq=true'"></a>
+                                <a th:unless="${isMIReq.equals(true)}" class=""
+                                   th:text="${class.getInstructorInfo()}"
+                                   th:href="@{'/theBridge/reports/admin/'}+${class.getInstructor().getId()}+'?isMIReq=false'"></a>
+                            </div>
+                            <thead class="thead-dark text-center">
+                                <th>Assignment Name</th>
+                                <th>Description</th>
+                                <th>Date Due</th>
+                                <th>Max Points</th>
+                                <th>Extra Credit</th>
+                            </thead>
+
+                            <tr class="text-center bg-light"
+                        th:each="assignment:${class.assignments}">
+                        <td th:text="${assignment.assignmentName}"></td>
+                        <td th:text="${assignment.description}"></td>
+                        <td th:text="${assignment.dueDate}"></td>
+                        <td th:text="${assignment.maxPoints}"></td>
+                        <td th:text="${assignment.getIsExtraCredit()}"></td>
+                    </tr>
+                        </table>
+                    </div>
+            </th:block>
+        </div>
+        <!--all Class assignments report (BY Class)--->
+        <div th:fragment="allClassAssignmentsRpt" class = "container-fluid">
+
+            <th:block th:each="class:${classes}">
+                <h1 class="text-center">Assignments</h1>
+
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder"
+                         th:text="${'Class: '}+${class.getSemesterInfo()}"
+                         style="font-size:20px"></div>
+                    <div class="font-weight-bolder"
+                         th:text="${class.getInstructorInfo()}"
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Assignment Name</th>
+                    <th>Description</th>
+                    <th>Date Due</th>
+                    <th>Max Points</th>
+                    <th>Extra Credit</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="assignment:${class.assignments}">
+                        <td th:text="${assignment.assignmentName}"></td>
+                        <td th:text="${assignment.description}"></td>
+                        <td th:text="${assignment.dueDate}"></td>
+                        <td th:text="${assignment.maxPoints}"></td>
+                        <td>Is extra credit will go here</td>
+                    </tr>
+                </table>
+
+            </th:block>
+        </div>
+        <!--a class roster report-->
+        <div th:fragment="aRosterRpt" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">Class Roster</h1>
+            <h2 class="text-light formHeaders" th:text="'School: '+${class.school.schoolName}"></h2>
+            <h2 class="text-light formHeaders"
+                th:text="'Class: '+ ${class.getSemesterInfo()}"> </h2>
+            <h2 class="text-light formHeaders"
+                    th:text="${class.getInstructorInfo()}"></h2>
+            <h3 class="text-light formHeaders">Students: </h3>
+            <table class = "table table-bordered table">
+                <thead class="thead-light text-center">
+                <th>Student's Name</th>
+                <th>Grade Level</th>
+                <th>Profile Pic</th>
+                </thead>
+                <th:block  th:each="student: ${class.students}">
+                    <tr class="text-center bg-dark text-light">
+                        <td><a th:text="${student.getFullName()}"
+                               th:href="@{/theBridge/reports/students/} + ${student.id}">
+                        </a></td>
+                        <td th:text="${student.gradeLevel.level}"></td>
+                        <td><img th:src="${student.profilePic}"
+                                 style="width:75px;"/></td>
+                    </tr>
+                </th:block>
+                <th class="bg-light"
+                        th:text="'Total Students: '+${class.numberOfStudents()}"></th>
+            </table>
+        </div>
+
+        <!--all class rosters report-->
+        <div th:fragment="getSchoolForAllRosters" class ="container-fluid">
+            <h1 class="text-center text-light formHeaders">All Bridge
+                Schools</h1>
+            <h2 class="text-center text-light formHeaders">Click the school to see class rosters</h2>
+            <table class = "table table-bordered text-center">
+                <thead class="thead-light">
+                <th>School Name</th>
+
+                </thead>
+                <th:block  th:each="school: ${schools}"  >
+                    <tr class="text-center bg-dark" style="font-size:25px;">
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a class=""
+                               th:href="@{'/theBridge/reports/schoolRosters?schoolId='} + ${school.id}+'&isMIReq=true'"
+                               th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a class=""
+                               th:href="@{'/theBridge/reports/schoolRosters?schoolId='} + ${school.id}+'&isMIReq=false'"
+                               th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+        <div th:fragment="allRosterRpt" class = "container-fluid">
+
+            <br>
+            <h1 class="text-center text-light formHeaders"
+                th:text="${schoolName}+' Class Rosters'"></h1>
+
+            <th:block th:each="class:${classes}">
+                <h2 class="text-light formHeaders"
+                   th:text="'Class: '+ ${class.getSemesterInfo()}"></h2>
+                <h2 class="text-light formHeaders"
+                        th:text="${class.getInstructorInfo()}"></h2>
+                <h3 class="text-light formHeaders">Students: </h3>
+                <table class="table table-bordered table">
+                    <thead class="thead-light text-center">
+                    <th>Student's Name</th>
+                    <th>Grade Level</th>
+                    <th>Profile Pic</th>
+                    </thead>
+                    <th:block th:each="student: ${class.students}">
+                        <tr class="text-center bg-dark text-light">
+                            <td th:if="${isMIReq.equals(true)}"><a
+                                    th:text="${student.getFullName()}"
+                                   th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=true'">
+                            </a></td>
+                            <td th:unless="${isMIReq.equals(true)}"><a
+                                    th:text="${student.getFullName()}"
+                                    th:href="@{/theBridge/reports/students/} + ${student.id}+'?isMIReq=false'">
+                            </a></td>
+                            <td th:text="${student.gradeLevel.level}"></td>
+                            <td><img th:src="${student.profilePic}"
+                                     style="width:75px;"/></td>
+                        </tr>
+                    </th:block>
+                    <th class="bg-light"
+                        th:text="'Total Students: '+${class.numberOfStudents()}"></th>
+                </table>
+            </th:block>
+            <h2  class="bg-dark p-3" th:if="${isMIReq.equals(true)}"><a
+                    th:href="@{/theBridge/reports/rosters?isMIReq=true}"
+                    th:text="'<-- Go Back to All School choices'"></a>
+            </h2>
+            <h2  class="bg-dark p-3" th:unless="${isMIReq.equals(true)}"><a
+                    th:href="@{/theBridge/reports/rosters?isMIReq=false}"
+                    th:text="'<-- Go Back to All School choices'"></a>
+            </h2>
+        </div>
+        <!--end of class rosters report-->
+
+        <!-- displayAllClassGrades report--->
+        <div th:fragment="displayAllClassGradesRpt" class = "container-fluid">
+            <h1 class="text-center"></h1>
+
+                <div th:each="studentName:${assignmentScores.keySet()}">
+                    <h3 th:text="${studentName}"></h3>
+                        <table class="table table-bordered">
+                            <thead>
+                                <th>Assignment Name</th>
+                                <th>Assignment Score</th>
+                                <th>image</th>
+                            </thead>
+                            <div >
+                                <tr
+                                        th:each="ass:${assignmentScores.get(studentName).values()}">
+                                    <td th:text="${ass.classAssignment.assignmentName}"></td>
+                                    <td
+                                        th:text="${ass.getStudentScore()}"></td>
+                                    <td ><img
+                                            th:src="${ass.status.statusImgUrl}"></td>
+                                </tr>
+                            </div>
+                        </table>
+                </div>
+                <br>
+                <br>
+                <hr>
+            </th:block>
+
+            <th:block th:each="student:${studentAvgs.keySet()}">
+                <li
+                        th:text="${student}+' '+${studentAvgs.get(student)}"></li>
+            </th:block>
+
+            <th:block th:each="student:${allStudentsAssignmentScores.keySet()}">
+                <li
+                        th:text="${student}"></li>
+                <th:block
+                        th:each="assignment:${allStudentsAssignmentScores.get(student).keySet()}">
+                    <li th:text="${assignment}"></li>
+                    <li
+                            th:text="${allStudentsAssignmentScores.get(student).get(assignment)}"></li>
+                </th:block>
+            </th:block>
+                <h1 class="bg-danger" th:text="${getAStudentsClassAverage}"></h1>
+        </div>
+        <!--display a students assignments and scores -->
+        <div th:fragment="displayAssignmentsAndScoresRpt" class =
+                "container-fluid text-light" id="studentAssignments">
+            <h2 class="text-center formHeaders">Assignment Scores</h2>
+            <br>
+            <div class = "row">
+                <div class="col-6 formHeaders">
+                    <h3 th:text="${class.getSemesterInfo()}"></h3>
+                    <h3 th:text="${class.getInstructorInfo()}"></h3>
+                    <h3 th:text="'Student: '+${student.getFullName()}"></h3>
+                </div>
+                <div class="col-6">
+                    <h3 class="bg-dark text-center">
+                        <th:block
+                                th:if="${studentAssignmentsDU == true}"><a
+                            th:href="@{/theBridge/reports/students/}+${student.id}+'?isGradesButtonReq='+${studentAssignmentsDU}"
+                            th:text="'<-- Go back to Student Summary'">
+
+                        </a>
+                        </th:block>
+                        <th:block
+                                th:unless="${studentAssignmentsDU == true}"><a
+                                th:href="@{/theBridge/reports/students/}+${student.id}+'?isGradesButtonReq=false'"
+                                th:text="'<-- Go back to Student Summary'">
+
+                        </a>
+                        </th:block>
+
+
+                    </h3>
+                </div>
+            </div>
+                <table class="table table-bordered text-center bg-light">
+                    <thead>
+                    <th>Assignment Name</th>
+                    <th>Assignment Score</th>
+                    <th>image</th>
+                    </thead>
+                    <div >
+                        <tr
+                                th:each="ass:${assignmentScores.values()}">
+                            <td th:text="${ass.classAssignment.assignmentName}"></td>
+                            <td
+                                    th:text="${ass.getStudentScore()}"></td>
+                            <td ><img
+                                    th:src="${ass.status.statusImgUrl}"></td>
+                        </tr>
+                    </div>
+                </table>
+        </div>
+
+
+
+        <!--- Site Admin Forms---->
+
+        <!---Site Admin Forms- addAdminPosition--->
+        <div th:fragment="adminPosForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a new Administrator
+                        position</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addAdminPosition/">
+
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="Administrator Position"
+                               th:field="${adminPosition.position}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${adminPosition.position}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Position</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!---Site Admin Forms- addCourseGenre--->
+        <div th:fragment="addCourseGenre" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a new Course Genre to the
+                        database</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addCourseGenre/">
+
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="Genre"
+                               th:field="${courseGenre.genre}"/>
+                        <span class="bg-danger text-light"
+                              th:errors="${courseGenre.genre}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Genre</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!---Site Admin Forms- addCourseLevel--->
+        <div th:fragment="addCourseLevel" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a new Course Level to
+                        the
+                        database</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addCourseLevel/">
+
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="Course Level"
+                               th:field="${courseLevel.level}"/>
+                        <span class="bg-danger text-light"
+                              th:errors="${courseLevel.level}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Course Level</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!---Admin Forms- addGradeLevel--->
+        <div th:fragment="addGradeLevel" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3
+                            class="formHeaders text-light">Add a New Grade
+                        Level</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addGradeLevel/">
+
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="Grade Level"
+                               th:field="${gradeLevel.level}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${gradeLevel.level}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Grade Level</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <!---Admin Forms- addRelationshipType--->
+        <div th:fragment="addRelationshipType" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a New Relationship
+                        Type</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addRelationshipType/">
+
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="Relationship Type"
+                               th:field="${relationshipType.type}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${relationshipType.type}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Relationship Type</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <!---Admin Forms- addSchool--->
+        <div th:fragment="addSchoolForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div
+                        class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a new school to the
+                        database</h3>
+                    <div class="form-group">
+                        <img class="logo" style="height:250px;"
+                             th:src="@{/images/TheBridgeLogo.png}"  />
+                    </div>
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addSchool/">
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="School Name"
+                               th:field="${school.schoolName}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolName}"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="Address"
+                               th:field="${school.schoolDetails.address}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolDetails.address}"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="City"
+                               th:field="${school.schoolDetails.city}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolDetails.city}"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="State"
+                               th:field="${school.schoolDetails.aState}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolDetails.aState}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group-label">Zip Code:
+                            <input class="form-control" type="text"
+                                   placeholder="Zip Code"
+                                   th:field="${school.schoolDetails.zipCode}"/>
+                        </label>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolDetails.zipCode}"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               placeholder="Phone Number"
+                               th:field="${school.schoolDetails.phoneNumber}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${school.schoolDetails.phoneNumber}"></span>
+                    </div>
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add School</button>
+                    </div>
+                    <p class="text-light bg-danger" th:text="${message}"></p>
+                </form>
+            </div>
+        </div>
+        <!---Admin Forms- addSchoolYear--->
+        <div th:fragment="addSchoolYearForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders" >Add a New Year</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/myInterface/addSchoolYear/">
+
+                    <div class="form-group">
+                        <label>School Year:</label>
+                        <input class="form-control"
+                               placeholder="School Year"
+                               th:field="${schoolYear.year}"/>
+                        <span class="text-light bg-danger"
+                              th:errors="${schoolYear.year}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add School Year</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <!---Admin Forms- createAdmin--->
+        <div th:fragment="createAdminForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Add a new Administrator to
+                        the
+                        Bridge</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-6" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createAdmin}" >
+
+                        <div class="form-group row">
+                            <div class="col-6">
+                                <label class="formHeaders text-light">Name:
+                                </label>
+                                <select name="userId">
+                                    <option th:each="user:${users}"
+                                            th:text="${user.getDisplayName()}"
+                                            th:value="${user.id}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+<!--                        <div class="form-group row mb-3"-->
+<!--                             style="overflow-y: scroll; height:50px ">-->
+<!--                            <div class="col">-->
+<!--                                <h4 class="p-3 bg-dark text-danger">If you do-->
+<!--                                    not-->
+<!--                                    see a name on the list, It is important to-->
+<!--                                    remember all administrators must-->
+<!--                                    register an account with the sight prior-->
+<!--                                    to them being added as a Bridge-->
+<!--                                    Administrator. Also the person may already-->
+<!--                                    be signed up as an admin.-->
+<!--                                </h4>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="form-group row">
+                            <div class="col-md-4" >
+                                <label class="formHeaders text-light">D.O.B.</label>
+                                <input type="date" class="form-control"
+                                       th:field="${administrator.dateOfBirth}"
+                                />
+                                <div>
+                                    <span class="text-light bg-danger"
+                                      th:errors="${administrator.dateOfBirth}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formHeaders text-light">Date Hired</label>
+                                <input class="form-control" type="date"
+                                       th:field="${administrator.dateHired}"
+                                />
+                                <div>
+                                    <span class="text-light bg-danger"
+                                       th:errors="${administrator.dateHired}"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label
+                                    class="col-md-2 col-form-label text-light formHeaders"
+                            >School:</label>
+                            <select name="schoolId">
+                                <option th:each="school: ${schools}" th:text="${school.schoolName}"
+                                        th:value="${school.id}"></option>
+                            </select>
+                            <div>
+                                <span class="text-light bg-danger"
+                                   th:errors="${administrator.school}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label
+                                    class="col-md-2 col-form-label text-light formHeaders">Position:</label>
+                            <select name="positionId">
+                                <option th:each="position: ${adminPositions}"
+                                        th:text="${position.position}"
+                                        th:value="${position.id}">
+                                </option>
+                            </select>
+                            <div>
+                                <span class="text-light bg-danger"
+                                   th:errors="${administrator.adminPosition}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row"></div>
+                        <input class="form-control"
+                               th:field="${administrator.expertise}"
+                               placeholder="Expertise"/>
+                        <div>
+                            <span class="text-light bg-danger"
+                               th:errors="${administrator.expertise}"></span>
+                        </div>
+
+                        <div class="float-right m-3">
+                            <button class ="btn btn-primary mb-2 btn-sm"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--- end of Site Admin Forms---->
+
+        <!--- School Admin Forms- createClass--->
+        <!-------Create Class-->
+        <!------get the school for createClass----->
+        <div th:fragment="getSchoolForCreateClass" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light">Create a new Class</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createClass/}" >
+
+                        <div class="row">
+                            <label class="mr-1 col-4 font-weight-bold">School
+                                Name:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="schoolId">
+                                <option th:each="school:${schools}"
+                                        th:value="${school.id}"
+                                        th:text="${school.schoolName}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="form-group m-3">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Choice</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!---- assign instructor semester etc -->
+        <div th:fragment="createClass" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light formHeaders">Create a new Class</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createClass2/}" >
+
+                        <div class="row">
+                            <h1 class="font-weight-bold formHeaders text-light"
+                                   th:text="'School
+                                Name: '+ ${schoolName}">
+                            </h1>
+                        </div>
+                        <!--todo add a note that says:
+                        if the course that you need is not
+                        listed go to createCourse to create it and then come back
+                         -->
+                        <div class="row">
+                            <label class="mr-1 col-4 font-weight-bold">Course
+                                Name:
+                            </label>
+                        </div>
+                        <input type="hidden" name="schoolId"
+                               th:value="${class.school.id}" />
+                        <div class ="row">
+                            <select class="col-12 text-center"
+                                    th:field="${class.course}">
+                                <option th:each="c:${courses}"
+                                        th:value="${c.id}"
+                                        th:text="${c.getDisplayName()}"></option>
+                                <span th:errors="${class.course}"></span>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <label
+                                    class="mr-1 col-4 font-weight-bold">Instructor:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    th:field="${class.instructor}">
+                                <option
+                                        th:each="inst:${instructors}"
+                                        th:value= "${inst.id}"
+                                        th:text="${inst.getDisplayName()}"></option>
+                                <span th:errors="${class.instructor}"></span>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <label
+                                    class="m-auto text-center col-3 font-weight-bold">Semester:
+                            </label>
+                            <label
+                                    class="m-auto text-center col-3 font-weight-bold">School
+                                Year:
+                            </label>
+                            <label
+                                    class="m-auto text-center col-3 font-weight-bold">Max
+                                Students:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-3 text-center m-auto"
+                                    th:field="${class.semester}">
+                                <option value="F"
+                                        th:text="${'Fall'}">Fall</option>
+                                <option value="Sp"
+                                        th:text="${'Spring'}"></option>
+                                <option value="S"
+                                        th:text="${'Summer'}"></option>
+                                <span th:errors="${class.semester}"></span>
+                            </select>
+                            <select class="col-3 text-center m-auto"
+                                    th:field="${class.schoolYear}">
+                                <option
+                                        th:each="year:${schoolYears}"
+                                        th:value="${year.id}"
+                                        th:text="${year.year}"></option>
+                                <span th:errors="${class.schoolYear}"></span>
+                            </select>
+                            <select class="col-3 text-center m-auto"
+                                    th:field="${class.maxStudents}">
+                                <option
+                                        th:each="num:${numStudents}"
+                                        th:value="${num}"
+                                        th:text="${num}"></option>
+                                <span th:errors="${class.maxStudents}"></span>
+                            </select>
+                        </div>
+                        <div class="form-group m-3">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Create Class</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!---- assign other staff -->
+        <div th:fragment="assignOtherStaff" class="container-fluid">
+
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-center text-light formHeaders">Choose other
+                        staff
+                        members
+                        for
+                        this class</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8  text-light"  >
+                    <div class="row formHeaders p-1">
+                        <h1
+                                th:text="${class.school.schoolName}"> </h1>
+                    </div>
+                    <div class="row formHeaders p-1">
+                        <h3
+                                th:text="'Course Name: '+${class.course.getDisplayName()}"></h3>
+                    </div>
+                    <div class="row formHeaders p-1">
+                        <h3
+                                th:text="'Semester: '+ ${class.semester} + ' '+ ${class.schoolYear.year}"></h3>
+                    </div>
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/otherStaff}" >
+
+
+                            <input type="hidden" name="classId"
+                                   th:value="${class.id}" />
+
+                        <div class="row">
+                            <table
+                                    class="table table-bordered text-center formHeaders text-light">
+                                <thead>
+                                <th>Position</th>
+                                <th>Name</th>
+                                <th>Select</th>
+                                <th>New Position</th>
+                                </thead>
+                                <tr th:each="staff: ${otherStaff}">
+                                    <td
+                                            th:text="${staff.adminPosition.position}"></td>
+                                    <td th:text="${staff.getDisplayName()}"></td>
+                                    <td>
+                                        <input class="mr-3" type="checkbox"
+                                               th:value="${staff.id}"
+                                               name="otherStaff"/>
+                                    </td>
+                                    <td>
+                                        <select name="positionId">
+                                            <option  th:each="p:${positions}"
+                                                     th:text="${p.position}"
+                                                    th:value="${p.id}"
+                                            ></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="float-right m-3">
+                            <button class ="btn btn-primary mb-2 btn-md"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <!--- end of createClass --->
+
+        <!-------Create assignment-->
+        <!--- choose a class in order to create an assignment ---->
+        <div th:fragment="chooseAClassForm" class = "container-fluid">
+            <h1 class="text-light formHeaders">Choose the class that you wish to
+                add an
+                assignment
+                to</h1>
+            <br>
+            <hr>
+
+            <th:block th:each="school: ${schools}">
+                <h3 class="text-light formHeaders" th:text="'School:
+                '+${school.schoolName}"></h3>
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder"
+
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Class</th>
+                    <th>Instructor</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="class: ${school.classes}">
+                        <td th:unless="${isMIReq.equals(true)}"><a
+                                th:href="${'/theBridge/nav2/createAssignment?classId='}+${class.id}"
+                                th:text=" ${class.course.getDisplayName()}+' '+${class.getSemester()} +' - '+${class.schoolYear.year}"></a></td>
+                        <td th:if="${isMIReq.equals(true)}"><a
+                                th:href="${'/myInterface/createAssignment?classId='}+${class.id}"
+                                th:text=" ${class.course.getDisplayName()}+' '+${class.getSemester()} +' - '+${class.schoolYear.year}"></a></td>
+                        <td th:text="'Instructor: ' + ${class.instructor.getDisplayName()}"></td>
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+        <!---- Create an Assignment --->
+        <div th:fragment="createAssignmentForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light formHeaders"
+                            th:text="${'Create a new Assignment '}"></h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <h2
+                            class="font-weight-bold text-center text-light formHeaders"
+                        th:text="${'Class: '}+${info}">
+                    </h2>
+
+                    <form th:unless="${isMIReq.equals(true)}" class
+                            ="form m-auto"
+                          method="post"
+                          th:action="@{/theBridge/nav2/createAssignment/}" >
+
+                        <input type="hidden" name="classId"
+                                   th:value="${aClassId}"/>
+
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <input class="form-control"
+                                       th:field="${classAssignment.assignmentName}"
+                                       placeholder="Assignment Name" />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.assignmentName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class=" col-12">
+                                <textarea cols="12" rows="4" class="form-control"
+                                       th:field="${classAssignment.description}"
+                                          placeholder="Description" ></textarea>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.description}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-4">
+                                <label class=" formHeaders">Max Points
+                                    :</label>
+                                <input id="maxPoints" type="range"
+                                       class="form-control-range"min="0.0" max="100.0" value="0.0"
+                                      th:field="${classAssignment.maxPoints}">
+
+<!--                                <input class="text-center"-->
+<!--                                      th:field="${classAssignment.maxPoints}"-->
+<!--                                      placeholder="Max Points"/>-->
+                                <span class="bg-light">Value:</span> <span
+                                    id="rangeDisplay"
+                                    class="text-danger bg-light"></span>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.maxPoints}"></span>
+                            </div>
+                            <script>
+
+                            </script>
+
+                            <div class="col-4 ml-3">
+                                <label class="formHeaders">Extra
+                            Credit</label>
+                                <input type="checkbox"
+                                       name="isExtraCredit"
+                                       th:value="${true}"/>
+                            </div>
+                            <div class=" col-3">
+                                <label class="formHeaders">Date Due:</label>
+                                <input type="date"
+                                        th:field="${classAssignment.dueDate}"
+                                        />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.dueDate}"></span>
+                            </div>
+                        </div>
+
+                            <div class="">
+                                <button class ="btn btn-primary mb-2 btn-sm"
+                                        type="submit">Submit Form</button>
+                            </div>
+
+
+
+                    </form>
+                    <form th:if="${isMIReq.equals(true)}" class
+                            ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createAssignment/}" >
+
+                        <input type="hidden" name="classId"
+                               th:value="${aClassId}"/>
+
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <input class="form-control"
+                                       th:field="${classAssignment.assignmentName}"
+                                       placeholder="Assignment Name" />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.assignmentName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class=" col-12">
+                                <textarea cols="12" rows="4" class="form-control"
+                                          th:field="${classAssignment.description}"
+                                          placeholder="Description" ></textarea>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.description}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-4">
+                                <label class=" formHeaders">Max Points
+                                    :</label>
+                                <input id="maxPoints1" type="range"
+                                       class="form-control-range"min="0" max="100" value="0"
+                                       th:field="${classAssignment.maxPoints}">
+                                <span class="bg-light">Value:</span> <span
+                                    id="rangeDisplay1"
+                                    class="text-danger bg-light"></span>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.maxPoints}"></span>
+                            </div>
+                            <div class="col-4 ml-3">
+                                <label class="formHeaders">Extra
+                                    Credit</label>
+                                <input type="checkbox"
+                                       name="isExtraCredit"
+                                       th:value="${true}"/>
+                            </div>
+                            <div class=" col-3">
+                                <label class="formHeaders">Date Due:</label>
+                                <input type="date"
+                                       th:field="${classAssignment.dueDate}"
+                                />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.dueDate}"></span>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <button class ="btn btn-primary mb-2 btn-sm"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-------end of create assignment-->
+
+        <!-------Create Roster-->
+        <!-----get school for create roster---->
+        <div th:fragment="getSchoolForCreateRoster" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light formHeaders">Choose the school which
+                        you
+                        will be
+                        creating a
+                        roster for</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createARoster/}" >
+
+                        <div class="row">
+                            <label class="mr-1 col-4 font-weight-bold">School
+                                Name:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="schoolId">
+                                <option th:each="school:${schools}"
+                                        th:value="${school.id}"
+                                        th:text="${school.schoolName}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="form-group m-3">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Choice</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- choose class-->
+        <div th:fragment="getClassForCreateRoster" class = "container-fluid">
+            <h1 class="text-center text-light formHeaders">All Classes </h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder text-light formHeaders"
+                         th:text="'School: '+${school.schoolName}"
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Class Id</th>
+                    <th>Course</th>
+                    <th>Instructor</th>
+                    <th>Semester</th>
+                    <th>Max Size</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="c:${school.classes}">
+                        <td th:text="${c.id}"></td>
+                        <td>
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/myInterface/createRoster2?classId='} + ${c.id}"></a>
+                        </td>
+                        <td th:text="${c.instructor.getDisplayName()}"></td>
+                        <td th:text="${c.getSemesterInfo()}"></td>
+                        <td th:text="${c.maxStudents}"></td>
+
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+        <!--             -->
+        <div th:fragment="createRosterForm" class = "container-fluid">
+            <h1 class="text-light formHeaders pl-3"
+                th:text="${class.school.schoolName}"></h1>
+            <h1 class="text-light formHeaders pl-3"
+                th:text=" ${class.course.getDisplayName()}+' '+${class.getSemester()} +'-'+${class.schoolYear.year}"> </h1>
+
+            <div class="row text-light formHeaders m-auto">
+                <h2 class="col"
+                    th:text="'Instructor: ' + ${class.instructor.getDisplayName()}"></h2>
+                <h2 class="col" th:text="'Current # of students: '+${class
+                .getStudents().size()}"></h2>
+            </div>
+            <h3 class="text-light formHeaders pl-3">Available Students:</h3>
+<!--todo add the check to the controller that determines if class is full
+     -->
+            <h1 th:unless="${students.size() > 0}"
+                class="text-warning formHeaders">No
+            students are available for this class. Your roster may be full
+                or there are not enough students assigned to the pool</h1>
+            <form th:if="${students.size() > 0}"  method="post"
+                  th:action="@{/myInterface/createRoster2/}" >
+                <input type="hidden" name="classId"
+                       th:value="${class.id}" />
+
+                <table class = "table table-bordered bg-light">
+                    <thead class="thead-dark text-center">
+                    <th>Student Id</th>
+                    <th>Student's Name</th>
+                    <th>D.O.B.</th>
+                    <th>Grade Level</th>
+                    <th>Profile Pic</th>
+                    <th>Add to Roster</th>
+                    </thead>
+                    <th:block
+                              th:each="student: ${students}">
+                        <tr class="text-center">
+                            <td th:text="${student.id}"></td>
+                            <td
+                                    th:text="${student.getLastNameFirstName()}"></td>
+                            <td th:text="${student.dateOfBirth}"></td>
+                            <td th:text="${student.gradeLevel.level}"></td>
+                            <td><img th:src="${student.profilePic}"
+                                     style="width:75px;"/></td>
+                            <td>
+                                <input class="mr-3" type="checkbox"
+                                        th:value="${student.id}"
+                                        name="studentIds"/>
+                            </td>
+                        </tr>
+                    </th:block>
+                </table>
+                <div class="float-right m-3">
+                    <button class ="btn btn-primary mb-2 btn-md"
+                            type="submit">Submit Form</button>
+                </div>
+            </form>
+        </div>
+        <!-- end of create roster   -->
+
+        <!-------Grade Assignments-->
+        <!-----get school for grading assignments---->
+        <div th:fragment="getSchoolForGradingAssignments"
+             class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light formHeaders">Choose the school</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form th:unless="${isMIReq.equals(true)}" class
+                            ="form m-auto"
+                          method="post"
+                          th:action="@{/theBridge/nav2/getSchool/}" >
+
+                        <div class="row">
+                            <label
+                                    class="mr-1 col-4 font-weight-bold text-light formHeaders">School
+                                Name:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="schoolId">
+                                <option th:each="school:${schools}"
+                                        th:value="${school.id}"
+                                        th:text="${school.schoolName}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="form-group m-3">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Choice</button>
+                        </div>
+                    </form>
+
+                    <form th:if="${isMIReq.equals(true)}" class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/getSchool/}" >
+                        <div class="row">
+                            <label
+                                    class="mr-1 col-4 font-weight-bold text-light formHeaders">School
+                                Name:
+                            </label>
+                        </div>
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="schoolId">
+                                <option th:each="school:${schools}"
+                                        th:value="${school.id}"
+                                        th:text="${school.schoolName}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="form-group m-3">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Choice</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <!-- choose class-->
+        <div th:fragment="getClassForGradingAssignments" class =
+                "container-fluid">
+            <h1 class="text-center bg-light">All Classes</h1>
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder text-light formHeaders"
+                         th:text="'School: '+${school.schoolName}"
+                         style="font-size:20px"></div>
+                    <thead class="thead-dark text-center">
+                    <th>Class Id</th>
+                    <th>Course</th>
+                    <th>Instructor</th>
+                    <th>Semester</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:if="${school.classes.size() > 0}"
+                        th:each="c:${school.classes}">
+                        <td th:text="${c.id}"></td>
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/myInterface/getClass?classId='} + ${c.id}+'&isMIReq=true'"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/theBridge/nav2/getClass?classId='} + ${c.id}+'&isMIReq=false'"></a>
+                        </td>
+                        <td th:text="${c.instructor.getDisplayName()}"></td>
+                        <td th:text="${c.getSemesterInfo()}"></td>
+
+                    </tr>
+
+                </table>
+            </th:block>
+        </div>
+
+        <!-- get an assignment  -->
+        <div th:fragment="getAnAssignment"
+             class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3
+                            class="text-light formHeaders ">Choose the
+                        assignment
+                        that you will
+                        be
+                        grading</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div th:if="${isMIReq.equals(true)}" class="col-md-8"
+                     style="padding:20px" >
+                    <table class = "table table-bordered"
+                           th:if="${class.assignments.size() > 0}">
+
+                        <div class="border border-dark border-3">
+                            <div class="font-weight-bolder text-center bg-light"
+                                 th:text="${'Class: '}+${class.getSemesterInfo()}"
+                                 style="font-size:20px"></div>
+                            <div class="font-weight-bolder text-center bg-light"
+                                 th:text="${class.getInstructorInfo()}"
+                                 style="font-size:20px"></div>
+                        </div>
+
+                        <thead class="thead-dark text-center">
+                        <th>Assignment Name</th>
+                        <th>Description</th>
+                        <th>Date Due</th>
+                        <th>Max Points</th>
+                        <th>Extra Credit</th>
+                        </thead>
+
+                        <tr class="text-center bg-light"
+                            th:each="assignment:${class.assignments}">
+                            <td ><a th:text="${assignment.assignmentName}"
+                                    th:href="@{'/myInterface/gradeAnAssignment?assignmentId='}+${assignment.id}+'&isMIReq='+${isMIReq}"
+                                    ></a></td>
+                            <td th:text="${assignment.description}"></td>
+                            <td th:text="${assignment.dueDate}"></td>
+                            <td th:text="${assignment.maxPoints}"></td>
+                            <td th:text="${assignment.getIsExtraCredit()}"></td>
+                        </tr>
+
+                    </table>
+
+                    <div class="bg-dark p-2"
+                         th:unless="${class.assignments.size() > 0}">
+                        <h2 class="text-warning text-wrap"
+                            th:text="'There are no assignments assigned to'+${class.getSemesterInfo()}"></h2>
+                        <h3 class="text-warning">Click
+                            <span><a
+                                    th:href="@{'/myInterface/createAssignment?classId='}+${class.id}+'&isMIReq='+${isMIReq}">here </a></span>to create an
+                            assignment now</h3>
+                    </div>
+                </div>
+                <div th:unless="${isMIReq.equals(true)}" class="col-md-8"
+                     style="padding:20px" >
+                    <table class = "table table-bordered"
+                           th:if="${class.assignments.size() > 0}">
+                        <div class="border border-dark border-3">
+                            <div class="font-weight-bolder text-center bg-light"
+                                 th:text="${'Class: '}+${class.getSemesterInfo()}"
+                                 style="font-size:20px"></div>
+                            <div class="font-weight-bolder text-center bg-light"
+                                 th:text="${class.getInstructorInfo()}"
+                                 style="font-size:20px"></div>
+                        </div>
+
+                        <thead class="thead-dark text-center">
+                        <th>Assignment Name</th>
+                        <th>Description</th>
+                        <th>Date Due</th>
+                        <th>Max Points</th>
+                        <th>Extra Credit</th>
+                        </thead>
+
+                        <tr class="text-center bg-light"
+                            th:each="assignment:${class.assignments}">
+                            <td ><a th:text="${assignment.assignmentName}"
+                                    th:href="@{'/theBridge/nav2/gradeAnAssignment?assignmentId='}+${assignment.id}+'&isMIReq='+${isMIReq}"
+                            ></a></td>
+                            <td th:text="${assignment.description}"></td>
+                            <td th:text="${assignment.dueDate}"></td>
+                            <td th:text="${assignment.maxPoints}"></td>
+                            <td th:text="${assignment.getIsExtraCredit()}"></td>
+                        </tr>
+
+                    </table>
+
+                    <div class="bg-dark p-2"
+                         th:unless="${class.assignments.size() > 0}">
+                        <h2 class="text-warning text-wrap"
+                            th:text="'There are no assignments assigned to'+${class.getSemesterInfo()}"></h2>
+                        <h3 class="text-warning">Click
+                            <span><a
+                                    th:href="@{'/theBridge/nav2/createAssignment?classId='}+${class.id}+'&isMIReq='+${isMIReq}">here </a></span>to create an
+                            assignment now</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  grade assignment     -->
+        <div th:fragment="gradeAssignmentsForm" class = "container-fluid">
+
+            <h2 class="text-light formHeaders"
+                    th:text="'School: '+${assignment.aClass.school.schoolName}"></h2>
+            <h2 class="text-light formHeaders"
+                th:text="'Class: '+ ${assignment.aClass.course.getDisplayName()}+' '+${assignment.aClass.getSemester()} +'-'+${assignment.aClass.schoolYear.year}"> </h2>
+            <h2 class="text-light formHeaders"
+                    th:text="'Instructor: ' + ${assignment.aClass.instructor.getDisplayName()}"></h2>
+
+            <div class="bg-dark text-light p-3 mb-3">
+                <h3 class="text-wrap"
+                    th:text="'Assignment: '+${assignment.assignmentName}"></h3>
+                <h3 class="text-wrap"
+                    th:text="'Description: '+${assignment.description}"></h3>
+                <h3 class="text-wrap"
+                    th:text="'Max Points Available: '+${assignment.maxPoints}"></h3>
+            </div>
+
+            <form  th:if="${assignment.aClass.students.size() >0 && isMIReq.equals(true)}"
+                  method="post"
+                  th:action="@{/myInterface/gradeAnAssignment/}"
+                  style="font-size:20px;">
+                <h1 th:text="${message}"></h1>
+                <input type="hidden"
+                       name="assignmentId"
+                       th:value="${assignment.id}" />
+
+                <div class="row">
+                    <div class="form-group col-12">
+                        <label class="font-weight-bold col-2">Student
+                            Name:</label>
+                        <select name="studentId">
+                            <option
+                                    class="text-center"
+                                    th:each="student:${assignment.aClass.students}"
+                                    th:value="${student.id}"
+                                    th:text="${student.getFullName()}"></option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-12">
+                        <label class="font-weight-bold col-2">Assignment Status:
+                        </label>
+                        <select class="col-3" name="statusId">
+                            <option class="text-center" th:each="status:${statusList}"
+                                    th:value="${status.id}"
+                                    th:text="${status.statusName}"></option>
+                        </select>
+                        <label class="font-weight-bold col-2">Date Completed:</label>
+                        <input class="col-3" type="date"
+                               th:field="${assignmentStatus.dateCompleted}"/>
+                        <span th:errors="${assignmentStatus.dateCompleted}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-12">
+                        <span class="text-danger"
+                                          th:text="${anError}"></span>
+                    </div>
+                </div>
+                <!--todo totalPointsScored is to be used in a later version of the app -->
+                <input type = "hidden"
+                       th:field="${assignmentStatus.totalPointsScored}">
+                <span type="hidden" class="text-danger"
+                      th:errors="${assignmentStatus.totalPointsScored}"></span>
+
+                <div class="row">
+                    <div class="form-group col">
+                        <label class="font-weight-bold">Notes:</label>
+                        <textarea class="form-control"
+                                th:field="${assignmentStatus.notes}"></textarea>
+                        <span class="text-danger"
+                              th:errors="${assignmentStatus.notes}"></span>
+                    </div>
+                </div>
+                <div class="m-3">
+                    <button class ="btn btn-primary mb-2 btn-md"
+                            type="submit">Submit Form</button>
+                </div>
+            </form>
+            <form   th:if="${assignment.aClass.students.size() >0 && isMIReq.equals(false)}"
+                  method="post"
+                  th:action="@{/theBridge/nav2/gradeAnAssignment/}"
+                  style="font-size:20px;">
+                <h1 th:text="${message}"></h1>
+                <input type="hidden"
+                       name="assignmentId"
+                       th:value="${assignment.id}" />
+
+                <div class="row">
+                    <div class="form-group col-12">
+                        <label class="font-weight-bold col-2">Student
+                            Name:</label>
+                        <select name="studentId">
+                            <option
+                                    class="text-center"
+                                    th:each="student:${assignment.aClass.students}"
+                                    th:value="${student.id}"
+                                    th:text="${student.getFullName()}"></option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-12">
+                        <label class="font-weight-bold col-2">Assignment Status:
+                        </label>
+                        <select class="col-3" name="statusId">
+                            <option class="text-center" th:each="status:${statusList}"
+                                    th:value="${status.id}"
+                                    th:text="${status.statusName}"></option>
+                        </select>
+                        <label class="font-weight-bold col-2">Date Completed:</label>
+                        <input class="col-3" type="date"
+                               th:field="${assignmentStatus.dateCompleted}"/>
+                        <span th:errors="${assignmentStatus.dateCompleted}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-12">
+                        <span class="text-danger"
+                              th:text="${anError}"></span>
+                    </div>
+                </div>
+                <!--todo totalPointsScored is to be used in a later version of the app -->
+                <input type = "hidden"
+                       th:field="${assignmentStatus.totalPointsScored}"/>
+                <span type="hidden" class="text-danger"
+                      th:errors="${assignmentStatus.totalPointsScored}"></span>
+
+                <div class="row">
+                    <div class="form-group col">
+                        <label class="font-weight-bold">Notes:</label>
+                        <textarea class="form-control"
+                                  th:field="${assignmentStatus.notes}"></textarea>
+                        <span class="text-danger"
+                              th:errors="${assignmentStatus.notes}"></span>
+                    </div>
+                </div>
+                <div class="m-3">
+                    <button class ="btn btn-primary mb-2 btn-md"
+                            type="submit">Submit Form</button>
+                </div>
+            </form>
+            <div
+                    th:unless="${assignment.aClass.students.size() > 0}"
+                 class="bg-dark p-2">
+                <h2 class="text-danger"
+                    th:text="'There are no students assigned to: '"></h2>
+                <h2
+                        class="text-danger" th:text="${assignment.aClass.getSemesterInfo()}"></h2>
+                <h3 class="text-danger">Click
+                    <span><a data-toggle="modal"
+                             th:href="'#rosterErrorModal'"
+                             data-target="#rosterErrorModal"
+                            >here </a></span>to inform
+                    the site
+                    manager of
+                    this issue.</h3>
+            </div>
+
+        </div>
+        <!-- end of grade assignments   -->
+
+
+
+        <!---Admin Forms- editAdmin--->
+
+        <!--all administrators form (for getAdmin for edit admin form)--->
+        <div th:fragment="getAdminForm" class = "container-fluid">
+            <div class="navbar bg-light"
+                 style="font-size:20px">
+                <a th:href="@{/theBridge/nav2/createAdmin}">Create Admin</a>
+                <a th:href="@{/theBridge/nav2/getAdmin}">Edit Admin</a>
+            </div>
+            <h2 class="text-center text-light formHeaders m-3">Edit
+                Administrator -
+                choose an
+                administrator to edit from the list below.</h2>
+            <th:block th:each="school: ${schools}" >
+                <h2 class="text-danger formHeaders"
+                    th:if="${school.schoolName.equals('N/A')}"
+                    th:text="'Unemployed Administrators'"></h2>
+                <h2 class="text-light formHeaders" th:unless
+                ="${school.schoolName.equals('N/A')}"
+                    th:text="'School: '+${school.schoolName}"></h2>
+                <table class="table table-bordered text-center">
+                    <thead class="bg-light">
+                        <th>Name</th>
+                        <th>Position</th>
+                    </thead>
+                    <tr class="bg-dark text-light" style="font-size:29px"
+                        th:each="admin:${school.administrators}">
+                        <td>
+                            <a class=""
+                                th:href="@{'/myInterface/editAdmin?adminId='}+${admin.id}"
+                                th:text="${admin.getDisplayName()}"></a>
+                        </td>
+                        <td
+                                th:if="${admin.adminPosition.position.equals('N/A')}"
+                                th:text="'Unemployed'"></td>
+                        <td th:unless="${admin.adminPosition.position.equals('N/A')}"
+                            th:text="${admin.adminPosition.position}"></td>
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+
+        <div th:fragment="editAdminForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h4 class="text-light formHeaders" th:text="${title}"></h4>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/editAdmin}" >
+
+                        <input type="hidden" name="adminId"
+                               th:value="${administrator.id}" />
+
+                        <div class="form-group row">
+                            <div class=" col-sm-3">
+                                <label>Last Name</label>
+                                <input class="form-control"
+                                       th:field="${administrator.user.lastName}"
+                                       th:value="${administrator.user.lastName}"
+                                       placeholder="Last Name" />
+                                <span class="text-danger" th:errors="${administrator.user.lastName}"></span>
+                            </div>
+
+                            <div class=" col-sm-3">
+                                <label>First Name</label>
+                                <input class="form-control"
+                                       th:field="${administrator.user.firstName}"
+                                       th:value="${administrator.user.firstName}"
+                                       placeholder="First Name" />
+                                <span class="text-danger"
+                                      th:errors="${administrator.user.firstName}"></span>
+                            </div>
+
+                            <div class=" col-sm-3">
+                                <label>Middle Name</label>
+                                <input class="form-control"
+                                       th:field="${administrator.user.middleName}"
+                                       th:value="${administrator.user.middleName}"
+                                       placeholder="Middle Name">
+                                <span class="text-danger" th:errors="${administrator.user.middleName}"></span>
+                            </div>
+                            <div class=" col-sm-3">
+                                <label>Suffix</label>
+                                <input class="form-control"
+                                       th:field="${administrator.user.suffix}"
+                                       th:value="${administrator.user.suffix}"
+                                       placeholder="suffix">
+                                <span class="text-danger"
+                                      th:errors="${administrator.user.suffix}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class=" col-sm-4">
+                                <label>Inmate Number</label>
+                                <input class="form-control"
+                                       th:field="${administrator.user.inmateNumber}"
+                                       th:value="${administrator.user.inmateNumber}"
+                                       placeholder="Inmate Number">
+                                <span class="text-danger"
+                                      th:errors="${administrator.user.inmateNumber}"></span>
+                            </div>
+                            <div class="col-md-4" >
+                                <label>Date of Birth</label>
+                                <input class="form-control" type="date"
+                                       th:field="${administrator.dateOfBirth}"
+                                       th:value="${administrator.dateOfBirth}"
+                                       placeholder="D.O.B"/>
+                                <span class="text-danger" th:errors="${administrator.dateOfBirth}"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Date Hired</label>
+                                <input class="form-control" type="date"
+                                       th:field="${administrator.dateHired}"
+                                       th:value="${administrator.dateHired}"
+                                       placeholder="Date Hired"/>
+                                <span class="text-danger" th:errors="${administrator.dateHired}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"
+                            >School:</label>
+                            <select name="schoolId">
+                                <option th:each="school: ${schools}" th:text="${school.schoolName}"
+                                      th:selected="${school == administrator.school}"
+                                        th:value="${school.id}"></option>
+                            </select>
+
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label">Position:</label>
+                            <select name="positionId">
+                                <option th:each="position: ${adminPositions}"
+                                        th:selected="${position == administrator.adminPosition}"
+                                        th:text="${position.position}"
+                                        th:value="${position.id}">
+                                </option>
+                            </select>
+
+                        </div>
+                        <div class="form-group row"></div>
+                        <label>Expertise</label>
+                        <input class="form-control"
+                               th:field="${administrator.expertise}"
+                               th:value="${administrator.expertise}"
+                               placeholder="Expertise"/>
+                        <span class="text-danger" th:errors="${administrator.expertise}"></span>
+
+                        <div class="float-right m-3">
+                            <button class ="btn btn-primary mb-2 btn-sm"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!---Admin Forms- createCourse--->
+        <div th:fragment="createCourse" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-center text-light formHeaders">Create a new
+                        Course</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createCourse}" >
+
+                        <div class="form-group row">
+                            <input class="form-control"
+                                   th:field="${course.courseName}"
+                                   placeholder="Course Name" />
+                            <div>
+                                <span class="text-light bg-danger"
+                                     th:errors="${course.courseName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="mr-3 formHeaders">Genre</label>
+                            <select
+                                    th:field="${course.courseGenre}">
+                                <option th:each="category:${courseGenres}"
+                                        th:text="${category.genre}"
+                                        th:value="${category.id}"></option>
+                            </select>
+                            <div>
+                                <span class="text-light bg-danger"
+                                  th:errors="${course.courseGenre}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="mr-3 formHeaders">Level</label>
+                            <select
+                                    th:field="${course.courseLevel}">
+                                <option th:each="level:${courseLevels}"
+                                        th:text="${level.level}"
+                                        th:value="${level.id}"></option>
+                            </select>
+                            <div>
+                                <span class="text-light bg-danger"
+                                  th:errors="${course.courseLevel}"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                    class="mr-2 font-weight-bold text-light formHeaders">Schools:<br></label>
+                        </div>
+                        <div class="input-group border border-light p-2">
+                            <div class="input-group">
+                                <th:block th:each="school: ${schools}">
+                                    <label class="mr-3 text-wrap formHeaders"
+                                            th:text="${school.schoolName}"></label>
+                                    <input class="mr-3 formHeaders"
+                                           type="checkbox"
+                                           th:value="${school.id}"
+                                           name="schoolList">
+                                </th:block>
+                                <div>
+                                    <span class="text-light bg-danger"
+                                      th:errors="${course.schools}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="float-right m-3">
+                            <button class ="btn btn-primary mb-2 btn-md"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!---Admin Forms- createStudent--->
+        <div th:fragment="createStudent" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3 class="text-light formHeaders">Create a new Student
+                        Account</h3>
+                     <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-6" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/createStudent}" >
+
+                        <div class="form-group row formHeaders">
+                            <div class=" col-sm-4">
+                                <input class="form-control"
+                                       th:field="${student.studentsLastName}"
+                                       placeholder="Last Name" />
+                                <span class="bg-danger text-light"
+                                      th:errors="${student.studentsLastName}"></span>
+                            </div>
+
+                            <div class=" col-sm-4">
+                                <input class="form-control"
+                                       th:field="${student.studentsFirstName}"
+                                       placeholder="First Name" />
+                                <span class="bg-danger text-light"
+                                      th:errors="${student.studentsFirstName}"></span>
+                            </div>
+
+                            <div class=" col-sm-4">
+                                <input class="form-control"
+                                       th:field="${student.studentsMiddleName}"
+                                       placeholder="Middle Name">
+                                <span class="text-danger"
+                                      th:errors="${student.studentsMiddleName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row formHeaders">
+                            <div class="col-md-4" >
+                                <label
+                                        class="col-form-label text-light">D.O
+                                    .B.
+                                    <input class="form-control"
+                                           th:field="${student.dateOfBirth}"
+                                           type="date"/>
+                                </label>
+                                <span class="bg-danger text-light"
+                                      th:errors="${student.dateOfBirth}"></span>
+                            </div>
+                            <label>School:
+                                <select class="col-12"
+                                        name="schoolId">
+                                    <option th:each="school: ${schools}" th:text="${school.schoolName}"
+                                            th:value="${school.id}"></option>
+                                </select>
+                            </label>
+                            <span class="text-danger"
+                                  th:errors="${student.school}"></span>
+                        </div>
+                        <div class="form-group row formHeaders">
+                            <label class="col-md-3 col-form-label text-light "
+                            >Grade Level:</label>
+                            <select class="col-md-8"
+                                    th:field="${student.gradeLevel}">
+                                <option th:each="gradeLevel: ${gradeLevels}"
+                                        th:text="${gradeLevel.level}"
+                                        th:value="${gradeLevel.id}"></option>
+                            </select>
+                            <span class="text-danger"
+                                  th:errors="${student.gradeLevel}"></span>
+                        </div>
+<!--                        <div class="form-group row">-->
+<!--                            <div class="col-md-8">-->
+<!--                                <input class="form-control"-->
+<!--                                       th:field="${student.profilePic}"-->
+<!--                                       placeholder="/images/people/[filename here]"/>-->
+<!--                                <span class="text-danger" th:errors="${student.profilePic}"></span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="form-group row">
+                            <label class="text-light formHeaders ">Profile Picture: </label>
+                            <input type="file"
+                                   class="form-control-file text-light"
+                                   th:field="${student.profilePic}" />
+                            <span class="text-danger" th:errors="${student.profilePic}"></span>
+                        </div>
+                        <div>
+                            <button class ="btn btn-primary mb-2 btn-lg m-3"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!---Admin Forms- addStatus--->
+        <div th:fragment="addStatus" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-6">
+                    <h3  class="text-light text-center">Add a new Status to the
+                        database</h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <form  class ="col-md-6"
+                       method="post"
+                       action="/theBridge/nav2/addStatus/">
+
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="Student Status"
+                               th:field="${status.statusName}"/>
+                        <span class="text-danger"
+                              th:errors="${status.statusName}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="Status Description"
+                               th:field="${status.description}"/>
+                        <span class="text-danger"
+                              th:errors="${status.description}"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control"
+                               placeholder="/images/statusImgs/[somethingHere].png"
+                               th:field="${status.statusImgUrl}"/>
+                        <span class="text-danger"
+                              th:errors="${status.statusImgUrl}"></span>
+                    </div>
+                    <div class="form-group">
+                        <button class ="btn btn-primary mb-2 col-5 offset-4"
+                                type="submit">Add Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!---Display Error Message For Invalid report requests or
+        anything else I may need------->
+        <div th:fragment="invalid" class="container-fluid">
+            <div  class="jumbotron jumbotron-fluid row">
+                <th:block th:unless="${forSmallWindow.equals(true)}">
+                    <div class="col-xs-4 m-auto">
+                        <h3 class="text-danger formHeaders"
+                            th:text="${problem}"></h3>
+                        <img class="logo" style="height:250px;"
+                             th:src="@{/images/TheBridgeLogo2.jpg}"/>
+                    </div>
+                    <div class="col-xs-4 m-auto">
+                        <h2
+                                class="bg-dark text-danger text-wrap p-4 formHeaders"
+                            th:text="${invalid}"></h2>
+                    </div>
+                </th:block>
+
+                <th:block th:if="${forSmallWindow.equals(true)}">
+                    <div class="col-xs-8 p-4 formHeaders">
+                        <h4   class="text-danger text-wrap p-4"
+                            th:text="${invalid}"></h4>
+                        <h4 class="m-auto">
+                            Click
+                            <span>
+                                <a data-toggle="modal"
+                                   th:href="'#exampleModal'"
+                                   data-target="#exampleModal">here</a>
+                            </span> to notify the site manager of this problem.
+                        </h4>
+
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            id="exampleModalLabel">Student
+                                            Registration</h5>
+                                        <button type="button"
+                                                class="close"
+                                                data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        A message has been sent to the site
+                                        manager on your behalf.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a
+                                                th:href="@{'/theBridge/messenger/siteMessage?messageType=registerStudent&isMIReq=false'}" th:text="'Close'">
+                                            </a>
+                                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </th:block>
+            </div>
+
+        </div>
+
+        //relationship request
+        <div th:fragment="relationshipRequest" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="container">
+                    <h1>Relationship Request</h1>
+                    <h3 class=" ">To create a link, you
+                        need to provide credentials for
+                        your student in the form
+                        below.</h3>
+                </div>
+                <div class="col-md-12" style="padding:20px" >
+                    <form id="relReqFrm" class ="form m-auto"
+                          method="post"
+                          th:action="@{/theBridge/messenger/relationshipRequest/}" >
+
+                        <input type="hidden" th:value="${senderId}"
+                               name="senderId">
+
+                        <div class="form-group row">
+                            <div class=" col-sm-3">
+                                <input class="form-control"
+                                       name="lastName"
+                                       placeholder="Last Name" />
+                            </div>
+
+                            <div class=" col-sm-3">
+                                <input class="form-control"
+                                       name="firstName"
+                                       placeholder="First Name" />
+                            </div>
+
+                            <div class=" col-sm-3">
+                                <input class="form-control"
+                                      name="middleName"
+                                       placeholder="Middle Name">
+                            </div>
+                            <div class=" col-sm-3">
+                                <input class="form-control"
+                                       name="suffix"
+                                       placeholder="suffix">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="row col-md-4" >
+                                <label class="col-3">DOB</label>
+                                <input class="form-control col-9"
+                                       name="dob"
+                                       type="date"/>
+                            </div>
+                            <div class="col-4 ">
+                                <p class="font-weight-bold">If
+                                your student is
+                                already
+                                registered for the
+                                site, you
+                                should have his\her BridgeStudentId#, if so
+                                please provide it in the text-box to the left -->
+                                .</p>
+                            </div>
+                            <div class="col-4">
+                                <input class="form-control" type="text"
+                                       name="bridgeStudentID"
+                                       placeholder="Bridge Student ID#"/>
+                            </div>
+                        </div>
+                        <div class="form-group row text-center">
+                            <label class="col-md-6">School:
+                                <select class=""
+                                        name="schoolId">
+                                    <option th:each="school: ${schools}"
+                                            th:text="${school.schoolName}"
+                                            th:value="${school.id}"></option>
+                                </select>
+                            </label>
+
+                            <label class="col-md-6">Grade Level:
+                                <select class=""
+                                        name="gradeLevelId">
+                                    <option th:each="gradeLevel: ${gradeLevels}"
+                                            th:text="${gradeLevel.level}"
+                                            th:value="${gradeLevel.id}"></option>
+                                </select>
+                            </label>
+                        </div>
+                        <div>
+                            <button id="enterData" type="button"
+                                     class="btn btn-primary mb-2 btn-lg m-3"
+                                    data-toggle="modal" data-target="#relReqModal">
+                                Enter Data
+                            </button>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal" id="relReqModal" tabindex="-1"
+                             role="dialog" aria-labelledby="relReqModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            id="relReqModalLabel">Relationship
+                                            Request
+                                        </h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        A message has been sent to the site
+                                        manager on your behalf.
+                                        The requested relationship should be
+                                        established
+                                        within a couple of days. Check your
+                                        Bridge inbox to inform you of
+                                        this update.
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="closeBtn" type="submit"
+                                                class="btn btn-secondary" >Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-------- Choose Class for Assigning other staff  ----->
+        <div th:fragment="chooseClassForAssigningOtherStaff" class =
+                "container-fluid">
+            <h1 class="text-center text-light formHeaders">All classes are
+                listed by School. Choose the class that you wish to add
+                staff to.</h1>
+
+            <th:block th:each="school: ${schools}" >
+                <table class = "table table-bordered">
+                    <div class="font-weight-bolder text-light formHeaders pl-1"
+                         style="font-size:25px" th:text="'School: '+${school.schoolName}">
+                    </div>
+                    <thead class="thead-dark text-center">
+                    <th>Class Id</th>
+                    <th>Course</th>
+                    <th>Instructor</th>
+                    <th>Semester</th>
+                    <th>Max Size</th>
+                    </thead>
+
+                    <tr class="text-center bg-light"
+                        th:each="c:${school.classes}">
+                        <td th:text="${c.id}"></td>
+                        <td>
+                            <a th:text="${c.course.getDisplayName()}"
+                               th:href="@{'/myInterface/otherStaff?classId='} + ${c.id}+'&isMIReq=true'"></a>
+                        </td>
+
+                        <td th:text="${c.instructor.getDisplayName()}"></td>
+                        <td th:text="${c.getSemesterStr()}"></td>
+                        <td th:text="${c.maxStudents}"></td>
+
+                    </tr>
+                </table>
+            </th:block>
+        </div>
+
+        <!------edit existing Relationship Form----->
+        <div th:fragment="editRelationshipForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <h3 class="m-auto text-light formHeaders">Establish the
+                    Relationship by
+                    pairing the user with their student</h3>
+
+                <div class="col-md-4 mt-3">
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/editRelationship/}" >
+
+                        <div class="row ">
+                            <label class="mr-1 col-4 font-weight-bold formHeaders">User
+                                Name:
+                            </label>
+                        </div>
+
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="userId">
+                                <option th:each="user:${users}"
+                                        th:value="${user.id}"
+                                        th:text="${user.getMessengerDisplayName()}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="row ">
+                            <label class="mr-1 col-4 font-weight-bold formHeaders">Student
+                                Name:
+                            </label>
+                        </div>
+
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="studentId">
+                                <option th:each="student:${students}"
+                                        th:value="${student.id}"
+                                        th:text="${student.getFullName()}"></option>
+                        <!--     th:selected="${student == administrator.school}"-->
+
+                                <span ></span>
+                            </select>
+                        </div>
+
+                        <h3 class="text-danger bg-dark"
+                            th:text="${invalid}"></h3>
+                        <div class="form-group row">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Choice</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!------append Relationship to a new user Form----->
+        <div th:fragment="appendRelationshipForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <h3 class="m-auto text-light formHeaders">Establish the
+                    Relationship by
+                    pairing the user with their student</h3>
+
+                <div class="col-md-4 mt-3">
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <form class ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/appendRelationship/}" >
+
+                        <div class="row ">
+                            <label class="mr-1 col-4 font-weight-bold formHeaders">User
+                                Name:
+                            </label>
+                        </div>
+
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="userId">
+                                <option th:each="user:${users}"
+                                        th:value="${user.id}"
+                                        th:text="${user.getMessengerDisplayName()}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+                        <div class="row ">
+                            <label class="mr-1 col-4 font-weight-bold formHeaders">Student
+                                Name:
+                            </label>
+                        </div>
+
+                        <div class="row">
+                            <select class="col-12 text-center"
+                                    name="studentId">
+                                <option th:each="student:${students}"
+                                        th:value="${student.id}"
+                                th:text="${student.getFullName()}"></option>
+                                <span ></span>
+                            </select>
+                        </div>
+
+                        <h3 class="text-danger bg-dark"
+                            th:text="${invalid}"></h3>
+                        <div class="form-group row">
+                            <button class ="btn btn-primary mb-2"
+                                    type="submit">Submit Relationship</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Forms for edit Assignment       -->
+
+        <!-------- getSchoolForEditClassAssignment  ----->
+        <div th:fragment="getSchoolForEditClassAssignmentForm" class
+                ="container-fluid">
+            <h1 class="text-center text-light formHeaders">All Bridge
+                Schools</h1>
+            <h2 class="text-center text-light formHeaders">Click the school
+                to see a list of Classes offered</h2>
+            <table class = "table table-bordered text-center">
+                <thead class="thead-light">
+                <th>School Name</th>
+
+                </thead>
+                <th:block  th:each="school: ${schools}"  >
+                    <tr class="text-center bg-dark" style="font-size:25px;">
+                        <td th:if="${isMIReq.equals(true)}">
+                            <a class=""
+                               th:href="@{'/myInterface/getClassAssignment?schoolId='} + ${school.id}+'&isMIReq=true'"
+                               th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+                        <td th:unless="${isMIReq.equals(true)}">
+                            <a class=""
+                               th:href="@{'/theBridge/nav2/getClassAssignment?schoolId='} + ${school.id}+'&isMIReq=false'"
+                               th:text="${school.schoolName}  +' - '+
+                            ${school.schoolDetails.address}+ ' - '+
+                            ${school.schoolDetails.city}+ ' '+
+                            ${school.schoolDetails.aState}"></a>
+                        </td>
+
+
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+
+        <!--getAllClassesForEditClassAssignment-->
+        <div th:fragment="getAllClassesForEditClassAssignmentForm" class =
+                "container-fluid">
+            <h1 class="text-center text-light formHeaders"
+                th:text="'All Classes for '+${school.schoolName}"></h1>
+
+            <!--Classes-->
+            <table class = "table table-bordered">
+                <div class="font-weight-bolder text-light formHeaders"
+                     th:text="'Classes: '"
+                     style="font-size:20px"></div>
+                <thead class="thead-dark text-center">
+                <th>Class Id</th>
+                <th>Course</th>
+                <th>Instructor</th>
+                <th>Semester</th>
+                <th>Max Size</th>
+                </thead>
+
+                <tr class="text-center bg-light"
+                    th:each="c:${classes}">
+                    <td th:text="${c.id}"></td>
+                    <td th:if="${isMIReq.equals(true)}">
+                        <a th:text="${c.course.getDisplayName()}"
+                           th:href="@{'/myInterface/allAssignmentsForPossibleEdit?classId='} + ${c.id}+'&isMIReq=true'"></a>
+                    </td>
+                    <td th:unless="${isMIReq.equals(true)}">
+                        <a th:text="${c.course.getDisplayName()}"
+                           th:href="@{'/theBridge/nav2/allAssignmentsForPossibleEdit?classId='} + ${c.id}+'&isMIReq=false'"></a>
+                    </td>
+                    <td th:text="${c.instructor.getDisplayName()}"></td>
+                    <td th:text="${c.getSemesterStr()}"></td>
+                    <td th:text="${c.maxStudents}"></td>
+
+                </tr>
+            </table>
+
+
+        </div>
+
+
+        <!-------- all Assignments For Possible Edit ----->
+        <div th:fragment="allAssignmentsForPossibleEditForm" class =
+                "container-fluid">
+            <div class="text-light formHeaders"><h1 th:text="${class.school.schoolName}"></h1>
+                <h2 class=""
+                    th:text=" ${class.getSemesterInfo()}"></h2>
+                <h2
+                        th:text="${class.getInstructorInfo()}"></h2>
+            </div>
+
+            <h3 class="text-light formHeaders">Assignments: </h3>
+            <table class = "table table-bordered">
+
+                <thead class="thead-dark text-center">
+                <th>Assignment Name</th>
+                <th>Date Due</th>
+                </thead>
+
+                <tr class="text-center bg-light"
+                    th:each="assignment:${class.assignments}">
+                    <td th:if="${isMIReq.equals(true)}">
+                        <a
+                                th:href="@{'/myInterface/editAssignment?assignmentId='}+${assignment.id}+'&isMIReq=true'"
+                                th:text="${assignment.assignmentName}"></a>
+                    </td>
+                    <td th:unless="${isMIReq.equals(true)}">
+                        <a
+                                th:href="@{'/theBridge/nav2/editAssignment?assignmentId='}+${assignment.id}+'&isMIReq=false'"
+                                th:text="${assignment.assignmentName}"></a>
+                    </td>
+                    <td th:text="${assignment.dueDate}"></td>
+                </tr>
+            </table>
+        </div>
+        <!---- edit an Assignment --->
+        <div th:fragment="editAssignmentForm" class="container-fluid">
+            <div class="jumbotron jumbotron-fluid row">
+                <div class="col-md-4">
+                    <h3 class="text-light formHeaders"
+                        th:text="${'Edit Assignment '}"></h3>
+                    <img class="logo" style="height:250px;"
+                         th:src="@{/images/TheBridgeLogo2.jpg}"  />
+                </div>
+                <div class="col-md-8" style="padding:20px" >
+                    <h2
+                            class="font-weight-bold text-center text-light formHeaders"
+                            th:text="${'Class: '}+${classAssignment.aClass.getSemesterInfo()}">
+                    </h2>
+
+                    <form th:unless="${isMIReq.equals(true)}" class
+                            ="form m-auto"
+                          method="post"
+                          th:action="@{/theBridge/nav2/editAssignment/}" >
+
+                        <input type="hidden" name="classId"
+                               th:value="${classAssignment.aClass.id}"/>
+
+                        <input type="hidden" name="assignmentId"
+                               th:value="${classAssignment.id}"/>
+
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <input class="form-control"
+                                       th:field="${classAssignment.assignmentName}"
+                                       th:value="${classAssignment.assignmentName}"
+                                       placeholder="Assignment Name" />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.assignmentName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class=" col-12">
+                                <textarea cols="12" rows="4" class="form-control"
+                                          th:field="${classAssignment.description}"
+                                          th:value="${classAssignment.description}"
+                                          placeholder="Description" ></textarea>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.description}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-4">
+                                <label class=" formHeaders">Max Points
+                                    :</label>
+
+                                <input class="text-center" th:value="${classAssignment.maxPoints}"
+                                        th:field="${classAssignment.maxPoints}"  placeholder="Max Points"/>
+
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.maxPoints}"></span>
+                            </div>
+                            <script>
+
+                            </script>
+
+                            <div class="col-4 ml-3">
+                                <label class="formHeaders">Extra
+                                    Credit</label>
+                                <input type="checkbox"
+                                       name="isExtraCredit"
+                                       th:checked="${classAssignment.isExtraCredit}"
+                                       th:value="${true}"/>
+                            </div>
+                            <div class=" col-3">
+                                <label class="formHeaders">Date Due:</label>
+                                <input type="date"
+                                       th:field="${classAssignment.dueDate}"
+                                       th:value="${classAssignment.dueDate}"/>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.dueDate}"></span>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <button class ="btn btn-primary mb-2 btn-sm"
+                                    type="submit">Submit Form</button>
+                        </div>
+                    </form>
+                    <form th:if="${isMIReq.equals(true)}" class
+                            ="form m-auto"
+                          method="post"
+                          th:action="@{/myInterface/editAssignment/}" >
+
+                        <input type="hidden" name="classId"
+                               th:value="${classAssignment.aClass.id}"/>
+                        <input type="hidden"name="assignmentId"
+                               th:value="${classAssignment.id}"/>
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <input class="form-control"
+                                       th:field="${classAssignment.assignmentName}"
+                                       th:value="${classAssignment.assignmentName}"
+                                       placeholder="Assignment Name" />
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.assignmentName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class=" col-12">
+                                <textarea cols="12" rows="4" class="form-control"
+                                          th:field="${classAssignment.description}"
+                                          th:value="${classAssignment.description}"
+                                          placeholder="Description" ></textarea>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.description}"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-4">
+                                <label class=" formHeaders">Max Points
+                                    :</label>
+
+                                <input class="text-center" th:value="${classAssignment.maxPoints}"
+                                       th:field="${classAssignment.maxPoints}"  placeholder="Max Points"/>
+
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.maxPoints}"></span>
+                            </div>
+                            <script>
+
+                            </script>
+
+                            <div class="col-4 ml-3">
+                                <label class="formHeaders">Extra
+                                    Credit</label>
+                                <input type="checkbox"
+                                       name="isExtraCredit"
+                                       th:checked="${classAssignment.isExtraCredit}"
+                                       th:value="${true}"/>
+                            </div>
+                            <div class=" col-3">
+                                <label class="formHeaders">Date Due:</label>
+                                <input type="date"
+                                       th:field="${classAssignment.dueDate}"
+                                       th:value="${classAssignment.dueDate}"/>
+                                <span class="text-light bg-danger"
+                                      th:errors="${classAssignment.dueDate}"></span>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <button class ="btn btn-primary mb-2 btn-sm"
+                                    type="submit">Submit Form</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!--End of Forms for edit Assignment       -->
+
+
+
+        <div id="linksPg" class="container-fluid" th:fragment="LinksPg">
+            <link type="text/css" rel="stylesheet" th:href="@{/css/libraryLinks.css}">
+            <h2> Books</h2>
+            <table class="formHeaders2 m-auto" >
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/books/Boolean_algebra.pdf}"
+                            target="_blank">Boolean Algebra</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/books/progit.pdf}"
+                            target="_blank">Pro Git</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/books/sorting.pdf}"
+                            target="_blank">Coding - Sorting</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/books/SQLNotesForProfessionals.pdf}" target="_blank">Databases - SQL</a></td>
+                </tr>
+            </table>
+            <h3> Tips and Other Useful Information </h3>
+            <table class="formHeaders2" >
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/atm_tips_2.pdf}" target="_blank">Atm Tips</a></td >
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/counting_change.pdf}" target="_blank">Counting Change</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/critical_thinking_tips.pdf}" target="_blank">Critical Thinking tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/paying_debit.pdf}" target="_blank">Paying Debit</a></td>
+                </tr>
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/fire_plan_tips.pdf}" target="_blank">Fire Plan Tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/food_labels.pdf}" target="_blank">Food Labels</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/gcf_career_research_worksheet.pdf}" target="_blank">Career Research Worksheet</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/job_application.pdf}" target="_blank">Job Application</a></td>
+                </tr>
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/grocery_list_tips.pdf}" target="_blank">Grocery List Tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/grill_safety.pdf}" target="_blank">Grill Saftey</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/measuring_tips.pdf}" target="_blank">Measuring Tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/mixing_tips.pdf}" target="_blank">Mixing Tips</a></td>
+                </tr>
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/Evaluating_Websites.pdf}" target="_blank">Evaluating Websites</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/subway_tips.pdf}" target="_blank">Subway Tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/time_practice.pdf}" target="_blank">Time Practice</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/stamp_values.pdf}" target="_blank">Stamp Values</a></td>
+                </tr>
+                <tr>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/time_sheet_tips.pdf}" target="_blank">Time Sheet Tips</a></td>
+                    <td class="td_bookz"><a
+                            th:href="@{/library/pdf/tipsAndOtherInfo/receipt_tips.pdf}" target="_blank">Receipt Tips</a></td>
+                </tr>
+            </table>
+
+            <h2>Videos</h2>
+            <h3> Educational</h3>
+            <table class="formHeaders2">
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/educational/BasicsAddition.ogg}" target="_blank">Basic Addition</a></td>
+                    <td><a
+                            th:href="@{/library/vids/educational/BasicSubtraction.ogg}" target="_blank">Basic Subtracion</a></td>
+                    <td><a
+                            th:href="@{/library/vids/educational/BasicMultiplication.ogg}" target="_blank">Basic Multiplication</a></td>
+                    <td><a th:href="@{/library/vids/educational/BasicDivision.ogg}"
+                           target="_blank">Basic Division</a></td>
+                </tr>
+
+                <tr>
+                    <td><a th:href="@{/library/vids/educational/BasicPercents.ogg}"
+                           target="_blank">Basic Percents</a></td>
+                    <td><a th:href="@{/library/vids/educational/BasicDecimals.ogg}"
+                           target="_blank">Basic Decimals</a></td>
+                    <td><a th:href="@{/library/vids/educational/BasicFractions.ogg}"
+                           target="_blank">Basic Fractions 1</a></td>
+                    <td><a
+                            th:href="@{/library/vids/educational/BasicFractions2.ogg}"
+                            target="_blank">Basic Fractions 2</a></td>
+                </tr>
+            </table>
+            <h3> Computing </h3>
+            <table class="formHeaders2" >
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/computing/ComputerBasicsConnectingtotheInternet.ogg}" target="_blank">Computer Basics - Connecting to the Internet</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/ComputerBasicsWhatistheCloud.ogg}" target="_blank">Computer Basics - What is the Cloud</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/Internet101BrowserBasics1.ogg}" target="_blank">Internet101 - Browser Basics 1</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/Internet101BrowserBasics2.ogg}" target="_blank">Internet101 - Browser Basics 2</a></td>
+                </tr>
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/computing/iPadBasicsGettingtoKnowtheiPad.ogg}" target="_blank">iPad Basics - Getting to Know the iPad</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/iPadBasicsManagingAppsandNotifications.ogg}" target="_blank">iPad Basics - Managing Apps and Notifications</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/iPhoneBasicsGettingtoKnowiOS.ogg}" target="_blank">iPhone Basics - Getting to Know iOS</a></td>
+                    <td><a
+                            th:href="@{/library/vids/computing/Windows8ManagingYourLibraries.ogg}" target="_blank">Windows8 - Managing Your Libraries</a></td>
+                </tr>
+            </table>
+            <h3> Social Sites and Communications</h3>
+            <table class="formHeaders2">
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/Facebook101GettingStartedwithFacebook.ogg}" target="_blank">Facebook 101 - Getting Started with Facebook</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/Facebook101UnderstandingPrivacyonFacebook.ogg}" target="_blank">Facebook 101 Understanding Privacy on Facebook</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/Facebook101AdjustingYourPrivacySettings.ogg}" target="_blank">Facebook 101 - Adjusting Your Privacy Settings</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/GmailManagingEmailwithGmail.ogg}"target="_blank">Gmail - Managing Email with Gmail</a></td>
+                </tr>
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/SkypeSettingUpYourComputerforSkype.ogg}" target="_blank">Skype -Setting Up Your Computer for Skype</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/SkypeMakingVideoCallswithSkype.ogg}" target="_blank">Skype - Making Video Calls with Skype</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/SkypeManagingYourSkypeAccount.ogg}" target="_blank">Skype - Managing Your Skype Account</a></td>
+                    <td><a
+                            th:href="@{/library/vids/socialSitesAndCommunications/SkypeScreenandFileSharingwithSkype.ogg}" target="_blank">Skype - Screen and File Sharing with Skype</a></td>
+
+                </tr>
+            </table>
+            <h3>Career Related</h3>
+            <table class="formHeaders2" >
+                <tr>
+                    <td><a
+                            th:href="@{/library/vids/careerRelated/InterviewingSkillsBodyLanguage.ogg}" target="_blank">Interviewing Skills - BodyLanguage</a></td>
+                    <td><a
+                            th:href="@{/library/vids/careerRelated/CareerExplorationSalary.com.ogg}" target="_blank">CareerExplorationSalary.com</a></td>
+                    <td><a
+                            th:href="@{/library/vids/careerRelated/Java TechJobs Console Demo.ogg}" target="_blank">Java Tech Jobs Console Demo</a></td>
+                </tr>
+            </table>
+        </div>
+
+
+
+        <!-----end of fragments.html --->
+    </body>
+</html>

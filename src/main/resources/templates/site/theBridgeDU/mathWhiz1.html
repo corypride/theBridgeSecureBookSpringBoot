@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Math Whiz 1.0</title>
+
+        <th:block th:replace ="fragments::pg-links"></th:block>
+        <link type="text/css" rel="stylesheet" th:href="@{/css/mathWhiz.css}">
+        <script th:src="@{/js/mathWhiz.js}"></script>
+
+    </head>
+    <body>
+
+        <div class ="container-fluid m-auto">
+            <div id="main-content"
+                 class="jumbotron jumbotron-fluid bg-info row">
+
+
+                <div id="page-info" class="col-md-6 font-weight-bolder">
+                    <div class = "navbar row">
+                        <button class="btn btn-primary" id="playButton"
+                                onclick="mathWhiz()">Play
+                            Now</button>
+                        <h1 class = "text-center "
+                            id="gameTextDisplay">Welcome to
+                            MathWhiz 1.0</h1>
+
+                    </div>
+
+                </div>
+
+                <div class=" col-md-6">
+                    <div class="alert alert-info">
+                        <table class="table">
+                            <thead class="text-center">
+                                <th>Game score</th>
+                                <th>Level</th>
+                                <th>Level Points</th>
+                            </thead>
+                            <tr class="text-center">
+                                <td id="gameScoreDisplay">0</td>
+                                <td id="gameLevelDisplay">0</td>
+                                <td id="gameLevelPointDisplay">0</td>
+
+                            </tr>
+                        </table>
+                    </div>
+                    <form
+                          method="post" action="">
+
+                        <div class="form-group">
+                            <label>Answer box -->&nbsp
+                                <input type="text"
+                                       placeholder="Enter your answer here"
+                                       name="userInput">
+                            </label>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary mb-2"
+                                    type="submit">Submit Answer
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </body>
+</html>

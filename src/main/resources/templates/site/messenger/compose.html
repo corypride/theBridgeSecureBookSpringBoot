@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <th:block th:replace ="fragments::pg-links"></th:block>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/compose.css}">
+    <script th:src = "@{/js/compose.js}" ></script>
+</head>
+    <body class="container-fluid" >
+    <div id="messageCompose"
+         class="border border-dark m-3" >
+        <h4 class="text-center">Compose</h4>
+        <form class ="form"
+              method="post" >
+            <input type="hidden" class="text-center" name="senderId"
+                   th:value="${sender.id}" />
+            <div class="form-group">
+
+                <label class="ml-4">Date:
+                    <input class="border-0"
+                           th:field="${mailbox.dateSent}"
+                           readonly />
+                </label>
+                <label class="ml-1 float-left">New:
+                    <input type="checkbox"  name="isNew" vaule="true" checked />
+                </label>
+
+            </div>
+
+
+            <div class="form-group row col-5 pl-1">
+                <label class="col-1">To:</label>
+                    <select name="recipientId" class="ml-2 col-10">
+                        <option th:each="recipient:${recipients}"
+                                th:text="${recipient.getMessengerDisplayName()}"
+                                th:value="${recipient.id}"></option>
+                    </select>
+
+            </div>
+            <div class="form-group">
+                <input class="ml-4" th:field="${mailbox.subject}"
+                       placeholder="Subject"/>
+            </div>
+            <div id="messageBox" class="form-group">
+                <label class="text-white">Message:
+                    <textarea th:field="${mailbox.message}" cols="50" rows="10"
+                              placeholder="Enter your message here"
+                    ></textarea>
+                </label>
+                <p th:errors ="${mailbox.message}"></p>
+            </div>
+            <div class="m-4">
+                <button class ="btn btn-primary mb-2 btn-lg"
+                        type="submit">Send</button>
+            </div>
+
+        </form>
+    </div>
+    </body>
+</html>

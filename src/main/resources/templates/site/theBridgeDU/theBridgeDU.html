@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pgNm">ParentView</title>
+
+    <div th:replace="fragments::pg-links"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/defaultUserPg.css}" />
+    <script th:src = "@{/js/theBridge.js}" ></script>
+</head>
+    <body>
+        <div class ="container-fluid m-auto"
+             style="background-color:black;">
+            <div class="navbar row bg-info">
+                <div class="col-md-2">
+                    <button id ="openSideNavButton"
+                                              class="btn btn-secondary" onclick="openNav()">Navigation Menu</button>
+                </div>
+                <div class="col-md-4">
+                    <h3 id="greeting" >Welcome to ParentView!</h3>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/theBridge/nav2/}">
+                        <button
+                                class=" float-right btn btn-secondary" id
+                                ="grade_book">Go to Grade-Book
+                        </button>
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/logout}">
+                        <button
+                                class=" float-right btn btn-secondary" id
+                                ="logoffButton">Logoff
+                        </button>
+                    </a>
+            </div>
+            </div>
+
+            <div id="mySidenav" class="sidenav">
+                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+                <a
+                   th:href="@{/theBridge/reports/getStudentAssociatedWithUser/}">
+                    <button id="grades_button"  class="sidenav_buttons btn btn-info">Grades</button>
+                </a>
+
+                <a  th:href="@{/theBridge/messenger/}">
+                    <button id="messenger_button"
+                        class="sidenav_buttons btn btn-info">
+                        Messenger</button>
+                </a>
+
+               <a th:href="@{/theBridge/nav/libraryLinks/}">
+                   <button id="library_button"
+                           class="sidenav_buttons btn btn-info">Library</button>
+               </a>
+            </div>
+            <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+            <div id="main" >
+                <header id="header_main"></header>
+                <main>
+                    <div>
+                        <div id="mainTopText"></div>
+                    </div>
+                   <div class ="row">
+                        <div class="col-md-6">
+                            <img id="leftAlignMainPic"
+                                 th:src="@{/images/EinstienLg.png}" />
+                        </div>
+                        <div class="col-md-6">
+
+                            <th:block id="linksPg"
+                                      th:if='${rptType =="linksPg"}'>
+                                <div th:replace="fragments::LinksPg"></div>
+                            </th:block>
+                            <!--a student report--->
+                            <th:block id="studentRpt"  th:if
+                                    ="${isGradesButtonReq == true && rptType == 'aStudentRpt'}">
+                                <div th:replace="fragments::aStudentRpt"></div>
+                            </th:block>
+                            <!--assignments report--->
+                            <th:block id="studentAssignments"  th:if
+                                    ="${studentAssignmentsDU == true}">
+                                <div th:replace="fragments::displayAssignmentsAndScoresRpt"></div>
+                            </th:block>
+                            <!-- Invaild report  -->
+                            <th:block id="invalid"
+                                      th:if='${rptType =="invalid"}'>
+                                <div th:replace="fragments::invalid"></div>
+                            </th:block>
+
+
+                        </div>
+                   </div> 
+                </main>
+                <footer>
+
+                </footer>
+            
+            </div>
+        </div>
+    </body>
+</html>

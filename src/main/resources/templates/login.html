@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>The Bridge Login</title>
+
+        <th:block th:replace ="fragments::pg-links"></th:block>
+        <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}">
+
+    </head>
+    <body>
+        <nav th:replace="fragments::reg_loginNav">
+        </nav>
+        <div class ="container-fluid m-auto">
+            <div id="main-content"
+                 class="jumbotron jumbotron-fluid row">
+<!--successful login should start with a welcome message.-->
+
+                <form  class ="col-md-6"
+                       method="post" action="/login/">
+
+                    <div class="form-group">
+                        <input  type ="text"
+                                placeholder="User Name"
+                                th:field="${loginFormDTO.username}">
+                        <div>
+                            <span class="text-danger"
+                                 th:errors="${loginFormDTO.username}"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input  type="password" placeholder="Password"
+                                th:field="${loginFormDTO.password}">
+                        <div>
+                            <span class="text-danger"
+                                 th:errors="${loginFormDTO.password}"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button class ="btn btn-primary mb-2"
+                                type="submit">Login Now</button>
+                    </div>
+                    <span>Don't have an account?
+                        <a class="text-danger" th:href="@{/register/}">
+                            Register for one now.
+                        </a>
+                    </span>
+                </form>
+                <div id="page-info" class="col-md-6 font-weight-bolder">
+                    <h1 class = "text-center ">Welcome to The Bridge Login
+                        Page!</h1>
+                    <p> Username and password are required to access all accounts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

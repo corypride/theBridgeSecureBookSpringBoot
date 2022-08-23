@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Grade-book</title>
+    <th:block th:replace ="fragments::pg-links"></th:block>
+    <script th:src = "@{/js/adminUserHome.js}" ></script>
+</head>
+    <body class="">
+    <nav th:replace="fragments::admin_loginNav"
+         style="border-color:white;"></nav>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/adminNav.css}">
+    <br>
+        <div class="bg-dark" id="leftSidenav">
+            <div id="innerLeftSideNav">
+                <h2 class="text-info text-center">Admin Reports</h2>
+                <hr class="bg-light">
+                <th:block th:each="rptKey:${rptKeys}">
+                    <div class="text-uppercase">
+                        <a class="report-links"
+                                th:href="'/theBridge/reports/'+${reports.get(rptKey)}+'?isMIReq=false'"
+                           th:text="${rptKey}"></a>
+                    </div>
+                </th:block>
+                <hr class="bg-light">
+                <h2 class="text-info text-center">Admin Forms</h2>
+                <hr class="bg-light">
+                <th:block th:each="frmKey:${frmKeys}">
+                    <div class="text-uppercase">
+                        <a class="form-links"
+                           th:href="'/theBridge/nav2/'+${forms.get(frmKey)}+'?isMIReq=false'"
+                           th:text="${frmKey}"></a>
+                    </div>
+                </th:block>
+                <hr class="bg-light">
+                <h2 class="text-info text-center">Messenger</h2>
+                <hr class="bg-light">
+                <div class="text-uppercase text-center">
+                    <a
+                        th:href="@{/theBridge/messenger/}"
+                        ><img th:src="@{/images/messenger.png}"></a>
+                </div>
+            </div>
+        </div>
+    <!-- Modal -->
+    <div th:if="${rptType.equals('gradeAnAssignment')}" class="modal" id="rosterErrorModal"
+          tabindex="1"
+          role="dialog" aria-labelledby="rosterErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="rosterErrorModalLabel">Roster
+                        Assignments</h5>
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    A message has been sent to the site
+                    manager on your behalf.
+                </div>
+                <div class="modal-footer">
+                    <a th:unless="${isMIReq.equals(true)}"
+                       th:href="@{/theBridge/messenger/siteMessage}+'?isMIReq=false&messageType=rosterError&subject='+${assignment.aClass.getSemesterInfo()}"
+                       th:text="'Close'">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainSection" class="">
+            <h3 class="text-center text-dark">The Grade-Book</h3>
+            <!---Reports--->
+            <th:block th:if='${rptType.equals("allAdminsRpt")}'>
+                <div th:replace="fragments::allAdminsRpt2"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("adminsUnemployed")}'>
+                <div th:replace="fragments::adminsUnemployed"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("anAdminRpt")}'>
+                <div th:replace="fragments::anAdminRpt"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("aStudentRpt")}'>
+                <div th:replace="fragments::aStudentRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("allStudentsRpt")}'>
+                <div th:replace="fragments::allStudentsRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("allStudentsBySchoolRpt")}'>
+                <div th:replace="fragments::allStudentsBySchoolRpt"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("aSchoolRpt")}'>
+                <div th:replace="fragments::aSchoolRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("allSchoolLinksRpt")}'>
+                <div th:replace="fragments::allSchoolLinksRpt"></div>
+            </th:block>
+            <th:block th:if='${rptType.equals("courseList")}'>
+                <div th:replace="fragments::allCoursesRpt"></div>
+            </th:block>
+            <th:block th:if='${rptType.equals("classes")}'>
+                <div th:replace="fragments::allClassesRpt"></div>
+            </th:block>
+            <th:block th:if='${rptType.equals("aClass")}'>
+                <div th:replace="fragments::aClassRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("aRoster")}'>
+                <div th:replace="fragments::aRosterRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("getSchoolForAllRosters")}'>
+                <div th:replace="fragments::getSchoolForAllRosters"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("allRosters")}'>
+                <div th:replace="fragments::allRosterRpt"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("assignment")}'>
+                <div th:replace="fragments::assignmentRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("assignments")}'>
+                <div th:replace="fragments::allAssignmentsRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("classAssignments")}'>
+                <div th:replace="fragments:: allClassAssignmentsRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("displayAssignmentsAndScores")}'>
+                <div th:replace="fragments:: displayAssignmentsAndScoresRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("displayAllClassGrades")}'>
+                <div th:replace="fragments:: displayAllClassGradesRpt"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("invalid")}'>
+                <div th:replace="fragments::invalid"></div>
+            </th:block>
+
+            <!---Forms--->
+
+            <!----forms for create roster---->
+            <th:block th:if='${rptType.equals("getSchoolForCreateRoster")}'>
+                <div th:replace="fragments::getSchoolForCreateRoster"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("getClassForCreateRoster")}'>
+                <div th:replace="fragments::getClassForCreateRoster"></div>
+            </th:block>
+            <th:block th:if='${rptType.equals("createRoster")}'>
+                <div th:replace="fragments::createRosterForm"></div>
+            </th:block>
+
+            <!----end of forms for create roster---->
+
+            <!----forms for addAssignment---->
+            <th:block th:if='${rptType.equals("chooseAClass")}'>
+                <div th:replace="fragments::chooseAClassForm"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("createAssignment")}'>
+                <div th:replace="fragments::createAssignmentForm"></div>
+            </th:block>
+
+            <!----end of forms for addAssignment---->
+
+
+            <!--forms for edit admin-->
+
+            <th:block th:if='${rptType.equals("getAdmin")}'>
+                <div th:replace="fragments::getAdminForm"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("editAdmin")}'>
+                <div th:replace="fragments::editAdminForm"></div>
+            </th:block>
+
+
+            <!--End of forms for edit admin-->
+
+
+
+            <th:block th:if='${rptType.equals("addCoursesToSchool")}'>
+                <div th:replace="fragments::addCoursesToSchool"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("createStudent")}'>
+                <div th:replace="fragments::createStudent"></div>
+            </th:block>
+            <th:block th:if='${rptType.equals("addStatus")}'>
+                <div th:replace="fragments::addStatus"></div>
+            </th:block>
+
+
+            <th:block th:if='${rptType.equals("otherStaff")}'>
+                <div th:replace="fragments::assignOtherStaff"></div>
+            </th:block>
+            <!----forms for grading an assignment---->
+            <th:block th:if='${rptType.equals("getSchoolForGradingAssignments")}'>
+                <div th:replace="fragments::getSchoolForGradingAssignments"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("getClassForGradingAssignments")}'>
+                <div th:replace="fragments::getClassForGradingAssignments"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("getAnAssignment")}'>
+                <div th:replace="fragments::getAnAssignment"></div>
+            </th:block>
+
+            <th:block th:if='${rptType.equals("gradeAnAssignment")}'>
+                <div th:replace="fragments::gradeAssignmentsForm"></div>
+            </th:block>
+
+        <!--edit assignment        -->
+
+        <th:block th:if='${rptType.equals("getSchoolForEditClassAssignment")}'>
+            <div
+                    th:replace="fragments::getSchoolForEditClassAssignmentForm"></div>
+        </th:block>
+
+        <th:block th:if='${rptType.equals("getAllClassesForEditClassAssignment")}'>
+            <div
+                    th:replace="fragments::getAllClassesForEditClassAssignmentForm"></div>
+        </th:block>
+
+        <th:block
+                th:if='${rptType.equals("allAssignmentsForPossibleEdit")}'>
+            <div th:replace="fragments::allAssignmentsForPossibleEditForm"></div>
+        </th:block>
+
+        <th:block th:if='${rptType.equals("editAssignment")}'>
+            <div th:replace="fragments::editAssignmentForm"></div>
+        </th:block>
+
+        <!--end of edit assignment        -->
+
+            <th:block th:if='${rptType.equals("editAssignmentGrade")}'>
+                <div th:replace="fragments::editAssignmentGradeForm"></div>
+            </th:block>
+
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Messenger</title>
+
+    <th:block th:replace ="fragments::pg-links"></th:block>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/messenger.css}">
+    <script th:src="@{/js/messenger.js}"></script>
+
+</head>
+<body>
+<div th:replace="fragments::admin_loginNav" class="navbar navbar-fixed"></div>
+    <div class ="container-fluid m-auto">
+        <h1 id="pgLabel">The Messenger</h1>
+        <div id="main-content"
+             class="jumbotron jumbotron-fluid border border-3 border-light row">
+            <div class="col-md-2" >
+                <div id="navBtns" class="btn-group-vertical">
+                    <img id="inboxBtn" th:src="@{/images/inbox.png}"
+                         th:alt="'Inbox'">
+
+                    <img id="composeBtn"
+                            th:src="@{/images/compose.png}" th:alt="'Compose'">
+
+                    <img id="sentMessagesBtn" th:alt="'Sent Messages'"
+                         th:src="@{/images/sentMessages2.png}">
+                </div>
+            </div>
+            <div  id="messageCenter"
+                 class="col-md-10 border border-3 border-light">
+                <iframe id="inbox" class="col-12"
+                        th:src="@{/theBridge/messenger/inbox}"
+                        style="visibility: hidden;">
+                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
+                    <a th:href="@{/theBridge/messenger/inbox}">Inbox</a>
+                </iframe >
+                <iframe id="compose" class="col-12"
+                        th:src="@{/theBridge/messenger/compose}"
+                        style="visibility: hidden;">
+                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
+                    <a th:href="@{/theBridge/messenger/compose}">Compose</a>
+                </iframe>
+                <iframe id="sentMessages" class="col-12"
+                        th:src="@{/theBridge/messenger/sentMessages}"
+                        style="visibility: hidden;">
+                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
+                    <a th:href="@{/theBridge/messenger/sentMessages}">Sent
+                        Messages</a>
+                </iframe>
+            </div>
+        </div>
+
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <th:block th:replace ="fragments::pg-links"></th:block>
+</head>
+    <body class="container">
+    <nav th:replace="fragments::admin_loginNav"></nav>
+    <br>
+    <br>
+    <br>
+    <th:block th:if='${rptType.equals("allAdminsRpt")}'>
+        <div th:replace="fragments::allAdminsRpt"></div>
+    </th:block>
+
+    <th:block th:if='${rptType.equals("allStudentsRpt")}'>
+        <div th:replace="fragments::allStudentsRpt"></div>
+    </th:block>
+
+    <th:block th:if='${rptType.equals("allSchoolsRpt")}'>
+        <div th:replace="fragments::allSchoolsRpt"></div>
+    </th:block>
+    <th:block th:if='${rptType.equals("allSchoolLinksRpt")}'>
+        <div th:replace="fragments::allSchoolLinksRpt"></div>
+    </th:block>
+    </body>
+</html>

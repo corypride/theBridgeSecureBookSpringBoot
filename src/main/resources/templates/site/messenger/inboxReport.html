@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <th:block th:replace ="fragments::pg-links"></th:block>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/inboxReport.css}">
+</head>
+    <body class="container-fluid p-4">
+        <div id="messageCenter"
+         class="col-12 border border-dark m-auto" style="padding:10px;">
+        <table id="inboxRpt" class
+                =" table-bordered col-12 text-xl-center">
+            <h4 class="text-center">Inbox</h4>
+            <div
+                    id="messsageCnt"><h4
+                    th:text="'Total Messages: '+${messages.size()}"></h4></div>
+            <thead class="bg-light text-center">
+            <th>Date</th>
+            <th>Sender</th>
+            <th>Subject
+            <th>Delete Message</th>
+            </thead>
+            <th:block th:each="message:${messages}">
+                <tr class="text-wrap">
+                    <td class="p-1 text-center" scope="row"
+                        th:text="${message.dateSent}"></td>
+                    <td class="p-1" scope="row"
+                        th:text="${message.sender.getMessengerDisplayName()}"></td>
+                    <td class="p-1" scope="row" >
+                        <a data-toggle="modal"
+                           th:href="@{#messageModal}+${message.id}"
+                           th:text="${message.subject}"></a>
+                    <td class="text-center p-1"><a class="text-danger"
+                           th:href="@{/theBridge/messenger/inboxDelete?messageId=}+${message.id}"
+                    >Delete Message
+                    </a></td>
+                    </td>
+                    <!-- Modal -->
+                    <div class="modal" th:id="'messageModal'+${message.id}"
+                    tabindex="-1"
+                     role="dialog" aria-labelledby="messageModalLabel"
+                         aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="messageModalLabel">Message
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-wrap"
+                                     th:text="${message.message}"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </tr>
+            </th:block>
+        </table>
+
+    </div>
+    </body>
+</html>
