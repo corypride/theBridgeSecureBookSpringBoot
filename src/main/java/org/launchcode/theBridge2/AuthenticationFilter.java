@@ -24,7 +24,7 @@ public class AuthenticationFilter extends HandlerInterceptorAdapter {
             "/register","/logout", "/css", "/bootstrap-4.3.1", "/js", "/images");
 
 
-    private static final List<String> aUList = Arrays.asList("/theBridge/nav2");
+    private static final List<String> aUList = Arrays.asList("/theBridge/nav2","/myInterface");
 
 
     private static boolean isAUListed(String path){
@@ -74,7 +74,7 @@ public class AuthenticationFilter extends HandlerInterceptorAdapter {
             // accordingly
 
             if((isAUListed(request.getRequestURI()))&& accountType == 0){
-                    System.out.println("Should  be denied");
+
                 response.sendRedirect("/denied");
                 //response.sendRedirect("/login");
                 return false;
