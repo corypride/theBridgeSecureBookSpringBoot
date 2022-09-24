@@ -7,13 +7,13 @@
     <link type="text/css" rel="stylesheet" th:href="@{/css/inboxReport.css}">
 </head>
     <body class="container-fluid p-4">
-        <div id="messageCenter"
-         class="col-12 border border-dark m-auto" style="padding:10px;">
-        <table id="inboxRpt" class
-                =" table-bordered col-12 text-xl-center">
+        <div
+         class="col-12 border border-dark m-auto messageCenter" style="padding:10px;">
+        <table class
+                =" inboxRpt table-bordered col-12 text-xl-center">
             <h4 class="text-center">Inbox</h4>
             <div
-                    id="messsageCnt"><h4
+                    class="messsageCnt"><h4
                     th:text="'Total Messages: '+${messages.size()}"></h4></div>
             <thead class="bg-light text-center">
             <th>Date</th>

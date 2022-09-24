@@ -71,13 +71,19 @@ public class messengerController {
         model.addAttribute("mailbox",new Mailbox());
         List<User> recipients = new ArrayList<>();
         for(User u: userRepository.findAll()){
-            if(!(u.getId() == user.getId())){
+            if(!(u.getId() == user.getId()) ){
                 recipients.add(u);
             }
         }
+
+
+        //for the th:if to display the page
+        if(!recipients.isEmpty() && user.getId() > 0){
+            model.addAttribute("compose",true);
+        }
         model.addAttribute("recipients",recipients);
         model.addAttribute("sender",user);
-        return "site/messenger/compose";
+        return "site/messenger/messenger";
     }
 
     //handler for composed message
@@ -105,7 +111,7 @@ public class messengerController {
         message.setNew(isNew);
 
         mailboxRepository.save(message);
-        return "redirect:/theBridge/messenger/sentMessages/";
+        return "redirect:/theBridge/messenger/";
     }
 
     @GetMapping("inboxDelete")

@@ -7,10 +7,9 @@
     <th:block th:replace ="fragments::pg-links"></th:block>
     <link type="text/css" rel="stylesheet" th:href="@{/css/messenger.css}">
     <script th:src="@{/js/messenger.js}"></script>
-    <link type="text/css" rel="stylesheet" th:href="@{/css/inboxReport.css}">
 
 </head>
-<body>
+<body class="container">
 <div th:replace="fragments::admin_loginNav" class="navbar navbar-fixed"></div>
 <div class ="container-fluid m-auto">
     <h1 id="pgLabel">The Messenger</h1>
@@ -22,14 +21,14 @@
                          th:alt="'Inbox'">
                 </a>
 
-               <a th:href="@{/theBridge/messenger/compose}">
-                   <img id="composeBtn"
-                     th:src="@{/images/compose.png}" th:alt="'Compose'">
-               </a>
+                <a th:href="@{/theBridge/messenger/compose}">
+                    <img id="composeBtn"
+                         th:src="@{/images/compose.png}" th:alt="'Compose'">
+                </a>
 
                 <a th:href="@{/theBridge/messenger/sentMessages}">
                     <img id="sentMessagesBtn" th:alt="'Sent Messages'"
-                     th:src="@{/images/sentMessages2.png}">
+                         th:src="@{/images/sentMessages2.png}">
                 </a>
             </div>
         </div>
@@ -93,14 +92,61 @@
 
         </div>
 
+        <div th:if="${compose}" class="col-10 border border-dark m-auto messageCenter">
+            <div id="messageCompose"
+                 class="border border-dark m-3 text-white pageBg" >
+                <h4 class="text-center text-white">Compose</h4>
+                <form class ="form"
+                      method="post" >
+                    <div id="theHiddenInputs">
+                        <input type="hidden"
+                                                class="text-center"
+                                 name="senderId"
+                                th:value="${sender.id}"/>
+                        <input style="visibility:hidden" type="checkbox"
+                               name="isNew" vaule="true"
+                               checked/>
+                        <input type="hidden" class="form-control text-center"
+                               th:field="${mailbox.dateSent}"
+                               readonly/>
+                    </div>
 
+                    <div class="form-group">
+                        <label class="col-4">To:</label>
+                        <select name="recipientId" class="">
+                            <option th:each="recipient:${recipients}"
+                                    th:text="${recipient.getMessengerDisplayName()}"
+                                    th:value="${recipient.id}"></option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" th:field="${mailbox.subject}"
+                               placeholder="Subject"/>
+                    </div>
+                    <div id="messageBox" class="form-group">
+                        <label class="text-white">Message:
+                            <textarea th:field="${mailbox.message}" cols="50" rows="10"
+                                      placeholder="Enter your message here"
+                            ></textarea>
+                        </label>
+                        <p th:errors ="${mailbox.message}"></p>
+                    </div>
+                    <div class="m-4">
+                        <button class ="btn btn-primary mb-2 btn-lg"
+                                type="submit">Send</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
 
         <div th:if="${sentMessages}">
             <div
-                 class="messageCenter col-12 border border-dark m-auto"
-                 style="padding:10px;">
+                    class="messageCenter col-12 border border-dark m-auto"
+                    style="padding:10px;">
                 <table  class
-                        ="inboxRpt table-bordered col-12 text-xl-center">
+                                ="inboxRpt table-bordered col-12 text-xl-center">
                     <h4 class="text-center text-white">Sent Messages</h4>
                     <div
                             class="messsageCnt pageBg text-white"><h4

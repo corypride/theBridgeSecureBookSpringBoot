@@ -23,7 +23,7 @@ font-size:25px;
 .container-fluid{
     padding:15vh;
     background-color: black;
-    max-height:440px;
+
 
 }
 #main-content{
@@ -45,9 +45,14 @@ font-size:25px;
     padding:10px;
 
     overflow-y:auto;
-    background-image: url(/images/messenger.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
+
+
+}
+
+.theBGImg{
+ background-image: url(/images/messenger.jpg);
+ background-repeat: no-repeat;
+ background-size: cover;
 }
 
 
@@ -127,26 +132,25 @@ font-size:25px;
 
 
 #messageCompose{
-
+    padding:10px;
     max-width:800px;
     overflow-x:hidden;
     overflow-y:auto;
 
 }
 
+
 #messageBox{
-    position: absolute;
-    top:48px;
-    left:259px;
     overflow-y:auto;
     overflow-x:hidden;
 
 }
+/**
 #message{
 max-height:245px;
 }
 
-
+**/
 /** end of compose css **/
 
 /** Css for inbox and sentMessages  **/
@@ -163,4 +167,7 @@ max-height:245px;
 
 
 
+#theHiddenInputs{
+position:absolute
 
+}
