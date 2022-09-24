@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 /*TODO user this form to handle all of the bridgeStuff*/
 @Controller
 @RequestMapping("theBridge/nav/")
@@ -15,7 +17,7 @@ public class TheBridgeDUController {
 
 
     @RequestMapping(value = "", method ={RequestMethod.GET, RequestMethod.POST})
-    public String displayDefaultUserPage(){
+    public String displayDefaultUserPage(HttpServletRequest request){
         return "site/theBridgeDU/theBridgeDU";
     }
 

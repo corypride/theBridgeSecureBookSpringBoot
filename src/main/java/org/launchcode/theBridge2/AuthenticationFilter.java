@@ -53,7 +53,6 @@ public class AuthenticationFilter extends HandlerInterceptorAdapter {
                              HttpServletResponse response, Object handler) throws IOException {
 
 
-
         //don't require sign-in for whitelisted pages
         if(isWhiteListed(request.getRequestURI())){
             //returning true indicates that the request may proceed
@@ -75,7 +74,7 @@ public class AuthenticationFilter extends HandlerInterceptorAdapter {
             // accordingly
 
             if((isAUListed(request.getRequestURI()))&& accountType == 0){
-
+                    System.out.println("Should  be denied");
                 response.sendRedirect("/denied");
                 //response.sendRedirect("/login");
                 return false;
