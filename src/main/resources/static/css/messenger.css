@@ -40,12 +40,10 @@ font-size:25px;
 #page-info{
     font-size:20px;
 }
-#messageCenter{
+.messageCenter{
 
     padding:10px;
-    min-height:275px;
-    max-height:75vh;
-    height:275px;
+
     overflow-y:auto;
     background-image: url(/images/messenger.jpg);
     background-repeat: no-repeat;
@@ -120,3 +118,49 @@ font-size:25px;
         animation-iteration-count: infinite;
 
 }
+
+.pageBg{
+    background-image: linear-gradient(to right, black , rgba(0,0,0,0.7));
+}
+
+/**css for compose.html**/
+
+
+#messageCompose{
+
+    max-width:800px;
+    overflow-x:hidden;
+    overflow-y:auto;
+
+}
+
+#messageBox{
+    position: absolute;
+    top:48px;
+    left:259px;
+    overflow-y:auto;
+    overflow-x:hidden;
+
+}
+#message{
+max-height:245px;
+}
+
+
+/** end of compose css **/
+
+/** Css for inbox and sentMessages  **/
+
+.messageCenter{
+    padding:10px;
+    max-width:800px;
+    overflow-x:hidden;
+    overflow-y:auto;
+
+}
+
+/** end of inbox and sentMessages css **/
+
+
+
+

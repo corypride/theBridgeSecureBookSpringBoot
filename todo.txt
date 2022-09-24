@@ -1,0 +1,17 @@
+I need to create this app to be able to receive all its data from an API instead of from someone manually entering in data that already probably exists in the schools system somewhere. This is in an effort to mimic a company like jpay adopting theBridge app and using it as an intermediariy between the school and the DOC.
+
+
+side note: I also thought about becoming the intermediary myself. That could look something like my app cyphering the data from the school's API and then using jpay/securus emailing system to send reports daily, weekly, or bi-weekly.
+
+TODO: Set up an API that contains school, teacher, student, and parent data.
+
+TODO: Refactor theBridge to receive its info from an API
+
+
+It is also necessary to make the look and feel of theBridge more modern and adaptable to mobile devices.
+
+TODO: Examine the site and list areas that you want to implement this modernity.
+
+TODO: Draw up wire-frames
+
+TODO: GET TO WORK!!!

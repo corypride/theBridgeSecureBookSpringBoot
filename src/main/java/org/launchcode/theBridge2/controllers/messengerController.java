@@ -105,8 +105,6 @@ public class messengerController {
         message.setNew(isNew);
 
         mailboxRepository.save(message);
-
-
         return "redirect:/theBridge/messenger/sentMessages/";
     }
 
@@ -140,7 +138,8 @@ public class messengerController {
         }
 
         model.addAttribute("messages", inbox);
-        return "site/messenger/inboxReport";
+//        return "site/messenger/inboxReport";
+        return "site/messenger/messenger";
     }
 
     @GetMapping("sentMessages")
@@ -155,8 +154,8 @@ public class messengerController {
                 sentMessages.add(message);
             }
         }
-        model.addAttribute("messages", sentMessages);
-        return "site/messenger/sentMessageReport";
+        model.addAttribute("sentMessages", sentMessages);
+        return "site/messenger/messenger";
     }
 
     @GetMapping("/relationshipRequest")

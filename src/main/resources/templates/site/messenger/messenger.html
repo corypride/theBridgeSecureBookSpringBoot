@@ -7,52 +7,164 @@
     <th:block th:replace ="fragments::pg-links"></th:block>
     <link type="text/css" rel="stylesheet" th:href="@{/css/messenger.css}">
     <script th:src="@{/js/messenger.js}"></script>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/inboxReport.css}">
 
 </head>
 <body>
 <div th:replace="fragments::admin_loginNav" class="navbar navbar-fixed"></div>
-    <div class ="container-fluid m-auto">
-        <h1 id="pgLabel">The Messenger</h1>
-        <div id="main-content"
-             class="jumbotron jumbotron-fluid border border-3 border-light row">
-            <div class="col-md-2" >
-                <div id="navBtns" class="btn-group-vertical">
+<div class ="container-fluid m-auto">
+    <h1 id="pgLabel">The Messenger</h1>
+    <div class="row">
+        <div class="col-md-2" >
+            <div id="navBtns" class="btn-group-vertical">
+                <a th:href="@{/theBridge/messenger/inbox}">
                     <img id="inboxBtn" th:src="@{/images/inbox.png}"
                          th:alt="'Inbox'">
+                </a>
 
-                    <img id="composeBtn"
-                            th:src="@{/images/compose.png}" th:alt="'Compose'">
+               <a th:href="@{/theBridge/messenger/compose}">
+                   <img id="composeBtn"
+                     th:src="@{/images/compose.png}" th:alt="'Compose'">
+               </a>
 
+                <a th:href="@{/theBridge/messenger/sentMessages}">
                     <img id="sentMessagesBtn" th:alt="'Sent Messages'"
-                         th:src="@{/images/sentMessages2.png}">
-                </div>
+                     th:src="@{/images/sentMessages2.png}">
+                </a>
             </div>
-            <div  id="messageCenter"
-                 class="col-md-10 border border-3 border-light">
-                <iframe id="inbox" class="col-12"
-                        th:src="@{/theBridge/messenger/inbox}"
-                        style="visibility: hidden;">
-                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
-                    <a th:href="@{/theBridge/messenger/inbox}">Inbox</a>
-                </iframe >
-                <iframe id="compose" class="col-12"
-                        th:src="@{/theBridge/messenger/compose}"
-                        style="visibility: hidden;">
-                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
-                    <a th:href="@{/theBridge/messenger/compose}">Compose</a>
-                </iframe>
-                <iframe id="sentMessages" class="col-12"
-                        th:src="@{/theBridge/messenger/sentMessages}"
-                        style="visibility: hidden;">
-                    <!--For browsers that do not support iframe, I have included a hyperlink to the page-->
-                    <a th:href="@{/theBridge/messenger/sentMessages}">Sent
-                        Messages</a>
-                </iframe>
-            </div>
+        </div>
+        <div th:if="${messages}"
+             class="col-10 border border-dark m-auto messageCenter" style="padding:10px;">
+            <table id="inboxRpt" class
+                    =" table-bordered col-12 text-xl-center">
+                <h4 class="text-center text-white">Inbox</h4>
+                <div
+                        id="messsageCnt" class="text-white pageBg"><h4
+                        th:text="'Total Messages: '+${messages.size()}"></h4></div>
+                <thead class="bg-light text-center">
+                <th>Date</th>
+                <th>Sender</th>
+                <th>Subject
+                <th>Delete Message</th>
+                </thead>
+                <th:block th:each="message:${messages}">
+                    <tr class="text-wrap pageBg text-white">
+                        <td class="p-1 text-center" scope="row"
+                            th:text="${message.dateSent}"></td>
+                        <td class="p-1" scope="row"
+                            th:text="${message.sender.getMessengerDisplayName()}"></td>
+                        <td class="p-1" scope="row" >
+                            <a data-toggle="modal"
+                               th:href="@{#messageModal}+${message.id}"
+                               th:text="${message.subject}"></a>
+                        <td class="text-center p-1"><a class="text-danger"
+                                                       th:href="@{/theBridge/messenger/inboxDelete?messageId=}+${message.id}"
+                        >Delete Message
+                        </a></td>
+                        </td>
+                        <!-- Modal -->
+                        <div class="modal" th:id="'messageModal'+${message.id}"
+                             tabindex="-1"
+                             role="dialog" aria-labelledby="messageModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            id="messageModalLabel">Message
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="text-wrap"
+                                             th:text="${message.message}"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </tr>
+                </th:block>
+            </table>
+
         </div>
 
 
+
+        <div th:if="${sentMessages}">
+            <div
+                 class="messageCenter col-12 border border-dark m-auto"
+                 style="padding:10px;">
+                <table  class
+                        ="inboxRpt table-bordered col-12 text-xl-center">
+                    <h4 class="text-center text-white">Sent Messages</h4>
+                    <div
+                            class="messsageCnt pageBg text-white"><h4
+                            th:text="'Total Messages: '+${sentMessages.size()}"></h4></div>
+                    <thead class="bg-light text-center">
+                    <th>Date</th>
+                    <th>Recipient</th>
+                    <th>Subject</th>
+                    <th>Delete Message</th>
+                    </thead>
+                    <th:block th:each="message:${sentMessages}">
+                        <tr class="text-wrap pageBg text-white">
+                            <td class="p-1 text-center" scope="row"
+                                th:text="${message.dateSent}"></td>
+                            <td class="p-1" scope="row"
+                                th:text="${message.recipient.getMessengerDisplayName()}"></td>
+                            <td class="p-1" scope="row" >
+                                <a data-toggle="modal"
+                                   th:href="@{#sentMessageModal}+${message.id}"
+                                   th:text="${message.subject}"></a>
+                            </td>
+                            <td class="p-1 text-center"><a class="text-danger"
+                                                           th:href="@{/theBridge/messenger/sentMessagesDelete?messageId=}+${message.id}"
+                            >Delete Message
+                            </a></td>
+                            <!-- Modal -->
+                            <div class="modal"
+                                 th:id="'sentMessageModal'+${message.id}"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="sentMessageModalLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"
+                                                id="sentMessageModalLabel">Message
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="text-wrap"
+                                                 th:text="${message.message}"></div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </tr>
+
+
+
+
+                    </th:block>
+                </table>
+
+            </div>
+        </div>
     </div>
+</div>
 
 </body>
 </html>
