@@ -143,8 +143,11 @@ window.addEventListener("load", function(){
 
     const gradesbutton = document.getElementById("grades_button");
     const messengerbutton = document.getElementById("messenger_button");
-    const gamesbutton = document.getElementById("games_button");
     const librarybutton = document.getElementById("library_button");
+     /**
+        TODO: add some educational games to site
+        const gamesbutton = document.getElementById("games_button");
+     **/
 
 
 //    const viewButton = document.getElementById("viewGradesBar");
@@ -163,8 +166,13 @@ window.addEventListener("load", function(){
         pageTrans(event.target)});
     messengerbutton.addEventListener("click",function(event){
         pageTrans(event.target)});
-    gamesbutton.addEventListener("click",function(event){
-        pageTrans(event.target)});
+    /**
+    eventListener for a games button
+
+     gamesbutton.addEventListener("click",function(event){
+            pageTrans(event.target)});
+    **/
+
     librarybutton.addEventListener("click",function(event){
         pageTrans(event.target)
         
