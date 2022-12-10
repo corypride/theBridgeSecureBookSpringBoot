@@ -1,95 +1,96 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org/">
-    <head>
-        <meta charset="UTF-8"/>
-        <title th:text="${title}"></title>
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}"></title>
 
-        <th:block th:replace ="fragments::pg-links"></th:block>
-        <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}">
+    <th:block th:replace ="fragments::pg-links"></th:block>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}">
 
-    </head>
-    <body class="container-fluid">
-        <nav th:replace="fragments::reg_loginNav"></nav>
-        <div class ="container-fluid m-auto">
-        <div id="main-content"
-             class="jumbotron jumbotron-fluid bg-white row">
+</head>
+<body class="container-fluid">
+<nav th:replace="fragments::reg_loginNav"></nav>
+<div class ="container-fluid m-auto">
+    <div id="main-content"
+         class="jumbotron jumbotron-fluid bg-white row">
 
-            <form  class ="col-12"
-                   method="post" action="/register/">
-                <div class="form-group row">
-                    <div class="col-1">
-                        <img id="approvedUserImg"
-                             th:src="@{/images/ApprovedUsers.png}"
-                             style="width:80px" />
-                    </div>
-                    <div class="col-md-3 pt-5">
-                        <input class="form-control" type="text"
-                               placeholder="Last Name"
-                               th:field="${registerFormDTO.lastName}"/>
-                        <div>
+        <form  class ="col-12"
+               method="post" action="/register/">
+            <div class="form-group row">
+                <div class="col-1">
+                    <img id="approvedUserImg"
+                         th:src="@{/images/ApprovedUsers.png}"
+                         style="width:80px" />
+                </div>
+                <div class="col-md-3 pt-5">
+                    <input class="form-control" type="text"
+                           placeholder="Last Name"
+                           th:field="${registerFormDTO.lastName}"/>
+                    <div>
                             <span class="text-danger"
-                                 th:errors="${registerFormDTO.lastName}"></span>
-                        </div>
+                                  th:errors="${registerFormDTO.lastName}"></span>
                     </div>
-                    <div class="col-md-3 pt-5">
-                        <input class="form-control" type="text"
-                               placeholder="First Name"
-                               th:field="${registerFormDTO.firstName}"/>
-                        <div>
+                </div>
+                <div class="col-md-3 pt-5">
+                    <input class="form-control" type="text"
+                           placeholder="First Name"
+                           th:field="${registerFormDTO.firstName}"/>
+                    <div>
                             <span class="text-danger"
-                                 th:errors="${registerFormDTO.firstName}"></span>
-                        </div>
+                                  th:errors="${registerFormDTO.firstName}"></span>
                     </div>
-                    <div class="col-md-3 pt-5">
-                        <input class="form-control" type="text"
-                               placeholder="Middle Name"
-                               th:field="${registerFormDTO.middleName}">
-                        <div>
+                </div>
+                <div class="col-md-3 pt-5">
+                    <input class="form-control" type="text"
+                           placeholder="Middle Name"
+                           th:field="${registerFormDTO.middleName}">
+                    <div>
                             <span class="text-danger"
-                                 th:errors="${registerFormDTO.middleName}"></span>
-                        </div>
+                                  th:errors="${registerFormDTO.middleName}"></span>
                     </div>
-                    <div class="col-md-2 pt-5">
-                        <input class="form-control" type="text"
-                               placeholder="Suffix"
-                               th:field="${registerFormDTO.suffix}">
-                        <div>
+                </div>
+                <div class="col-md-2 pt-5">
+                    <input class="form-control" type="text"
+                           placeholder="Suffix"
+                           th:field="${registerFormDTO.suffix}">
+                    <div>
                             <span class="text-danger"
                                   th:errors="${registerFormDTO.suffix}"></span>
-                        </div>
                     </div>
-
                 </div>
 
-                <div class="form-group row">
-                    <div class="col-md-3 row">
-                        <div class="col-md-4 ">Inmate#</div>
-                        <input class="form-control col-md-6" type="text"
-                               placeholder="Inmate# (Optional)"
-                               th:field="${registerFormDTO.inmateNumber}">
-                        <div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-3 ">
+                    <input class="form-control" type="email"
+                           placeholder="Email address"
+                           th:field="${registerFormDTO.email}">
+                    <div>
+                            <span class="text-danger"
+                                  th:errors="${registerFormDTO.email}"></span>
+                    </div>
+                </div>
+                <div  class="col-md-3 ">
+                    <input class="form-control" type="text"
+                           placeholder="UserName"
+                           th:field="${registerFormDTO.username}">
+                    <div>
+                            <span class="text-danger"
+                                  th:errors="${registerFormDTO.username}"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    Inmate#
+                    <input class="form-control col-md-6" type="text"
+                           placeholder="Inmate# (Optional)"
+                           th:field="${registerFormDTO.inmateNumber}">
+                    <div>
                             <span class="text-danger"
                                   th:errors="${registerFormDTO.inmateNumber}"></span>
-                        </div>
                     </div>
-                    <div class="col-md-3 ">
-                            <input class="form-control" type="email"
-                                    placeholder="Email address"
-                                    th:field="${registerFormDTO.email}">
-                        <div>
-                            <span class="text-danger"
-                                 th:errors="${registerFormDTO.email}"></span>
-                        </div>
-                    </div>
-                    <div  class="col-md-3 ">
-                            <input class="form-control" type="text"
-                                   placeholder="UserName"
-                                   th:field="${registerFormDTO.username}">
-                        <div>
-                            <span class="text-danger"
-                                 th:errors="${registerFormDTO.username}"></span>
-                        </div>
-                    </div>
+                </div>
+                <div class="col-md-3">
                     <label class="text-black" id="accountType">Account
                         Type:
                         <select
@@ -101,39 +102,40 @@
                     </label>
                     <div>
                         <span class="text-danger"
-                             th:errors="${registerFormDTO.accountType}"></span>
+                              th:errors="${registerFormDTO.accountType}"></span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-6">
-                        <input class="form-control" type="password"
-                               placeholder="Password"
-                               th:field="${registerFormDTO.password}">
-                        <div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <input class="form-control" type="password"
+                           placeholder="Password"
+                           th:field="${registerFormDTO.password}">
+                    <div>
                             <span class="text-danger"
-                                 th:errors="${registerFormDTO.password}"></span>
-                        </div>
+                                  th:errors="${registerFormDTO.password}"></span>
                     </div>
+                </div>
 
-                    <div class="col-6">
-                        <input class="form-control" type="password"
-                               placeholder="Verify Password"
-                               th:field="${registerFormDTO.verifyPassword}">
-                        <div>
+                <div class="col-6">
+                    <input class="form-control" type="password"
+                           placeholder="Verify Password"
+                           th:field="${registerFormDTO.verifyPassword}">
+                    <div>
                             <span class="text-danger"
-                                 th:errors="${registerFormDTO.verifyPassword}"></span>
-                        </div>
+                                  th:errors="${registerFormDTO.verifyPassword}"></span>
                     </div>
                 </div>
-                <div class="form-group row mt-4">
-                    <div class="col">
-                        <button class="btn btn-primary mb-2"
-                                type="submit">Register Now
-                        </button>
-                    </div>
+            </div>
+            <div class="form-group row mt-4">
+                <div class="col">
+                    <button class="btn btn-primary mb-2"
+                            type="submit">Register Now
+                    </button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
-    </body>
+</div>
+</body>
 </html>

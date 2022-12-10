@@ -125,6 +125,14 @@ public class AuthenticationController {
             return "login";
         }
 
+        String password = ldto.getPassword();
+        if(!theUser.isMatchingPassword(password)){
+            errors.rejectValue("password", "password.invalid", "Invalid password");
+            model.addAttribute("title", "Log In");
+            return "login";
+
+        }
+
         setUserInSession(request.getSession(), theUser);
 
         //TODO eventually instead of being sent to theBridgeDU or AU, after
