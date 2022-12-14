@@ -16,11 +16,12 @@ public class Mailbox extends AbstractEntity{
     private String dateSent;
 
 
-
+    @NotNull
     @OneToOne
     private User sender;
 
 
+    @NotNull
     @OneToOne
     private User recipient;
 

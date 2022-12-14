@@ -209,6 +209,13 @@
 
             </div>
         </div>
+
+        <div th:if="${error}">
+            <div
+                    class="messageCenter col-12 border border-danger m-auto text-danger font-weight-bolder"
+                    style="padding:10px;" th:text="${error}">
+            </div>
+        </div>
     </div>
 </div>
 

@@ -55,7 +55,7 @@ public class messengerController {
 
     }
 
-    /**/
+
     @GetMapping(value="")
     public String displayMessenger(Model model){
         return "site/messenger/messenger";
@@ -67,20 +67,29 @@ public class messengerController {
 
         HttpSession session = request.getSession();
         User user = authenticationController.getUserFromSession(session);
-
         model.addAttribute("mailbox",new Mailbox());
-        List<User> recipients = new ArrayList<>();
-        for(User u: userRepository.findAll()){
-            if(!(u.getId() == user.getId()) ){
-                recipients.add(u);
-            }
-        }
-
+        List<User> recipients = userRepository.findByIdNot(user.getId());
 
         //for the th:if to display the page
         if(!recipients.isEmpty() && user.getId() > 0){
             model.addAttribute("compose",true);
+        } else {
+            //handle 2 possible errors, invalid id or no recipients
+           if(recipients.isEmpty()){
+               model.addAttribute("error","Site is not fully functional. There" +
+                       " " +
+                       "appears to be no users entered into the theBridge SQL " +
+                       "database. " +
+                       "Contact your site admin about this problem.");
+           } else {
+               model.addAttribute("error","Your user id is not accessible at " +
+                       "this time. Please log-out and try again. If this " +
+                       "problem persists contact your site admin about this " +
+                       "problem." +
+                       " ");
+           }
         }
+
         model.addAttribute("recipients",recipients);
         model.addAttribute("sender",user);
         return "site/messenger/messenger";
@@ -91,19 +100,26 @@ public class messengerController {
     public String composeMessage(@ModelAttribute @Valid Mailbox message,
                                  Errors err, @RequestParam int senderId,
                                  @RequestParam int recipientId,
-                                 @RequestParam boolean isNew,
+                                 @RequestParam  boolean isNew,
                                  Model model){
-        if (err.hasErrors()){
+
+        System.out.println("Sender Id is: "+senderId);
+        if (err.hasErrors() ){
             //todo: handle any errors that may occur
-//            List<User> recipients = new ArrayList<>();
-//            for(User u: userRepository.findAll()){
-//                if(!(u.getId() == user.getId())){
-//                    recipients.add(u);
-//                }
-//            }
-           // model.addAttribute("recipients",recipients);
-        return "site/messenger/compose";
+            //the only error that can happen is that the message is blank
+
+              //for the th:if to display the page
+            model.addAttribute("compose",true);
+//            //pass the senderId from the previous message
+            User sender = userRepository.findById(senderId).get();
+            model.addAttribute("sender",sender);
+//            //pass in a list of users
+            model.addAttribute("recipients",
+                    userRepository.findByIdNot(senderId));
+            return "site/messenger/messenger";
+
         }
+
         User sender = userRepository.findById(senderId).get();
         User recipient = userRepository.findById(recipientId).get();
         message.setSender(sender);
