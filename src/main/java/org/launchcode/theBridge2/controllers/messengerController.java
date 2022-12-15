@@ -65,33 +65,45 @@ public class messengerController {
     @GetMapping("compose")
     public String displayMessageComposer(HttpServletRequest request, Model model) throws IOException {
 
-        HttpSession session = request.getSession();
-        User user = authenticationController.getUserFromSession(session);
-        model.addAttribute("mailbox",new Mailbox());
-        List<User> recipients = userRepository.findByIdNot(user.getId());
 
-        //for the th:if to display the page
-        if(!recipients.isEmpty() && user.getId() > 0){
-            model.addAttribute("compose",true);
+
+        HttpSession session = request.getSession();
+        Optional<User> user =
+                Optional.ofNullable(authenticationController.getUserFromSession(session));
+        model.addAttribute("mailbox",new Mailbox());
+        List<User> recipients =
+                userRepository.findByIdNotOrderByUsernameAsc(user.get().getId());
+
+//            TODO: continue to work on the handling that will catch blank or
+//             null user
+//        user = null;
+//        try{
+//
+//        } catch (NullPointerException e) {
+//
+//        }
+        
+        if(user.isEmpty()){
+            model.addAttribute("error","Your user id is not accessible at " +
+                    "this time. Please log-out and try again. If this " +
+                    "problem persists contact your site admin about this " +
+                    "problem." +
+                    " ");
+        } else if(recipients.isEmpty()){
+            model.addAttribute("error","Site is not fully functional. There" +
+                    " " +
+                    "appears to be no School Administrators entered into the " +
+                    "theBridge " +
+                    "SQL " +
+                    "database. " +
+                    "Contact your site admin about this problem.");
         } else {
-            //handle 2 possible errors, invalid id or no recipients
-           if(recipients.isEmpty()){
-               model.addAttribute("error","Site is not fully functional. There" +
-                       " " +
-                       "appears to be no users entered into the theBridge SQL " +
-                       "database. " +
-                       "Contact your site admin about this problem.");
-           } else {
-               model.addAttribute("error","Your user id is not accessible at " +
-                       "this time. Please log-out and try again. If this " +
-                       "problem persists contact your site admin about this " +
-                       "problem." +
-                       " ");
-           }
+            //for the th:if to display the compose page
+            model.addAttribute("compose",true);
         }
 
         model.addAttribute("recipients",recipients);
-        model.addAttribute("sender",user);
+        model.addAttribute("sender",user.get());
         return "site/messenger/messenger";
     }
 
@@ -115,7 +127,7 @@ public class messengerController {
             model.addAttribute("sender",sender);
 //            //pass in a list of users
             model.addAttribute("recipients",
-                    userRepository.findByIdNot(senderId));
+                    userRepository.findByIdNotOrderByUsernameAsc(senderId));
             return "site/messenger/messenger";
 
         }

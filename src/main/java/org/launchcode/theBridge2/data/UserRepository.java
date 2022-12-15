@@ -18,7 +18,7 @@ public interface UserRepository extends CrudRepository<User,Integer> {
 
     List<User> findByStudentIsNotNullOrderByFirstNameAsc();
 
-    List<User> findByIdNot(Integer userId);
+    List<User> findByIdNotOrderByUsernameAsc(Integer userId);
 
 
 

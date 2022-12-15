@@ -28,8 +28,8 @@ public class Mailbox extends AbstractEntity{
     @Size(max = 250)
     private String subject;
 
-    @NotBlank (message = "Message cannot be blank")
-    @NotNull(message = "Message cannot be null")
+    @NotBlank (message = "Email Message cannot be blank")
+    @NotNull(message = "Email Message cannot be null")
     @Size(max=2500)
     private String message;
 

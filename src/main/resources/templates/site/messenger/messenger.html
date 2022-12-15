@@ -96,6 +96,7 @@
             <div id="messageCompose"
                  class="border border-dark m-3 text-white pageBg" >
                 <h4 class="text-center text-white">Compose</h4>
+                <h2 class="text-danger" th:errors ="${mailbox.message}"></h2>
                 <form class ="form"
                       method="post" >
                     <div id="theHiddenInputs">
@@ -130,7 +131,7 @@
                                       placeholder="Enter your message here"
                             ></textarea>
                         </label>
-                        <p th:errors ="${mailbox.message}"></p>
+
                     </div>
                     <div class="m-4">
                         <button class ="btn btn-primary mb-2 btn-lg"
