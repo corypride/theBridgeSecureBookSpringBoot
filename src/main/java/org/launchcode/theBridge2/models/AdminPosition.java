@@ -1,5 +1,7 @@
 package org.launchcode.theBridge2.models;
 
+
+
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.validation.Valid;

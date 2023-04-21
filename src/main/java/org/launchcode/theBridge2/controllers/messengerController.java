@@ -82,7 +82,7 @@ public class messengerController {
 //        } catch (NullPointerException e) {
 //
 //        }
-        
+
         if(user.isEmpty()){
             model.addAttribute("error","Your user id is not accessible at " +
                     "this time. Please log-out and try again. If this " +

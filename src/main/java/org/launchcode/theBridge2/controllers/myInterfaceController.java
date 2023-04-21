@@ -177,6 +177,7 @@ public class myInterfaceController {
         HashMap<String, String> data = getAllFormNames();
         List<String> result = new ArrayList<>();
         for (String nm: data.keySet()) {
+            System.out.println(nm);
             Integer anInt = Integer.parseInt(nm.substring(0,2).trim());
             if(anInt > 5 && anInt <15) {
                 result.add(nm);
@@ -224,6 +225,46 @@ public class myInterfaceController {
         model.addAttribute("rptType", "");
         return "site/theBridgeAU/myInterface";
     }
+
+    @GetMapping("addFormName")
+    public String addFormName(Model model){
+        model.addAttribute(new FormName());
+        return "site/theBridgeAU/addFormName";
+    }
+    @RequestMapping("addFormName")
+    public String addFormName(@ModelAttribute @Valid FormName newFormName, Errors errors, Model model){
+        //mandatory attributes for myInterface page navPane
+        model.addAttribute("reports", getAllReportNames());
+        model.addAttribute("rptKeys",getSortedReportNames());
+        model.addAttribute("forms", getAllFormNames());
+        model.addAttribute("frmKeys", getSortedFormNames1());
+        model.addAttribute("frmKeys2", getSortedFormNames2());
+        model.addAttribute("frmKeys3", getSortedFormNames3());
+        //end of mandatory attributes for myInterface page
+        model.addAttribute("title", "Add Course Genre");
+        if(errors.hasErrors()){
+
+
+            return "site/theBridgeAU/myInterface";
+
+        }
+        if (formNameRepository.findAll() != null) {
+            List<FormName> result = (List) formNameRepository.findAll();
+            for (FormName cg : result) {
+                if (cg.getFormNm().toLowerCase().trim().equals(newFormName.getFormNm().toLowerCase().trim())) {
+                    errors.rejectValue("Form Name", "name.duplicate",
+                            "Form by this name " +
+                                    "already exists.");
+
+
+                    return "site/theBridgeAU/addFormName";
+                }
+            }
+        }
+        formNameRepository.save(newFormName);
+        return "redirect:/myInterface/addFormName/";
+    }
+
 
     //For creating adminPositions
     @GetMapping("addAdminPosition")

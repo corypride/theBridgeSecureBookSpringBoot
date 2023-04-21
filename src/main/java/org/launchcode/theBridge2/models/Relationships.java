@@ -1,5 +1,6 @@
 package org.launchcode.theBridge2.models;
 
+
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
