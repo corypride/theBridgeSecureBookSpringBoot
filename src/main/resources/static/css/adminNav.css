@@ -23,6 +23,8 @@ left:23%;
 z-index:1;
 overflow-y:scroll;
 background-image: url(../images/aBridgeClassroom.jpeg);
+background-repeat: no-repeat;
+background-size: cover;
 }
 
 #leftSidenav{
